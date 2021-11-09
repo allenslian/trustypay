@@ -15,10 +15,10 @@ namespace TrustyPay.Core.Cryptography
         /// </summary>
         /// <param name="privateKey">your private key</param>
         /// <param name="publicKey">another party public key</param>
-        /// <param name="keySize">private/public key size</param>
         /// <param name="padding">encryption padding</param>
+        /// <param name="keySize">private/public key size</param>
         public RSACryptoProvider(PrivateKey privateKey, PublicKey publicKey,
-            KeySizes keySize = KeySizes.RSA2048, RSAEncryptionPadding padding = null)
+            RSAEncryptionPadding padding = null, KeySizes keySize = KeySizes.RSA2048)
             : this(privateKey, publicKey, null, padding, keySize)
         {
         }

@@ -23,4 +23,10 @@
     <ProjectReference Include="..\..\..\src\Core\TrustyPay.Core.Cryptography\TrustyPay.Core.Cryptography.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="keys/*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

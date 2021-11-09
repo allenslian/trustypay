@@ -37,13 +37,12 @@ namespace TrustyPay.Core.Cryptography
         throw new InvalidDataException("The text is not PEM format!");
       }
 
-      var key = new StringBuilder(128);
       var format = RSACryptoProvider.PrivateKeyFormat.Pkcs1;
-      lines.Aggregate(key, (acc, value) =>
+      var key = lines.Aggregate(new StringBuilder(128), (acc, value) =>
       {
         if (value.StartsWith("-----"))
         {
-          if (value.IndexOf("RSA") == -1)
+          if (!value.Contains("RSA", StringComparison.CurrentCultureIgnoreCase))
           {
             format = RSACryptoProvider.PrivateKeyFormat.Pkcs8;
           }
@@ -71,7 +70,7 @@ namespace TrustyPay.Core.Cryptography
       return ImportPublicKeyLines(lines);
     }
 
-    public static RSACryptoProvider.PrivateKey ImportPublicKeyFromPemText(string pem)
+    public static RSACryptoProvider.PublicKey ImportPublicKeyFromPemText(string pem)
     {
       if (string.IsNullOrEmpty(pem))
       {
@@ -89,13 +88,12 @@ namespace TrustyPay.Core.Cryptography
         throw new InvalidDataException("The text is not PEM format!");
       }
 
-      var key = new StringBuilder(128);
       var format = RSACryptoProvider.PublicKeyFormat.Pkcs1;
-      lines.Aggregate(key, (acc, value) =>
+      var key = lines.Aggregate(new StringBuilder(128), (acc, value) =>
       {
         if (value.StartsWith("-----"))
         {
-          if (value.IndexOf("RSA") == -1)
+          if (!value.Contains("RSA", StringComparison.CurrentCultureIgnoreCase))
           {
             format = RSACryptoProvider.PublicKeyFormat.X509;
           }
