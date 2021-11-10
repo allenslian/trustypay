@@ -30,6 +30,11 @@ namespace TrustyPay.Core.Cryptography
                 throw new ArgumentNullException(nameof(source));
             }
 
+            if (string.IsNullOrEmpty(signatureText))
+            {
+                throw new ArgumentNullException(nameof(signatureText));
+            }
+
             var signatureBytes = Convert.FromBase64String(signatureText);
             return source.Verify(plainBytes, signatureBytes, hashAlgorithm);
         }

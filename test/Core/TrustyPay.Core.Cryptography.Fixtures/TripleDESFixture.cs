@@ -22,6 +22,40 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         }
 
         [Fact]
+        public void ShouldFailToEncrypt()
+        {
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key!!!!!");
+            var provider = new TripleDESEncryptionProvider(secretKey, null);
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Encrypt(null);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Encrypt(Array.Empty<byte>());
+            });
+        }
+
+        [Fact]
+        public void ShouldFailToDecrypt()
+        {
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key!!!!!");
+            var provider = new TripleDESEncryptionProvider(secretKey, null);
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Decrypt(null);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Decrypt(Array.Empty<byte>());
+            });
+        }
+
+        [Fact]
         public void ShouldEncryptAndDecryptAsciiText()
         {
             var plainText = "hello";

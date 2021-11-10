@@ -32,7 +32,7 @@ namespace TrustyPay.Core.Cryptography
 
     private static RSACryptoProvider.PrivateKey ImportPrivateKeyLines(string[] lines)
     {
-      if (lines == null || lines.Length == 0)
+      if (lines == null || lines.Length == 0 || !lines[0].StartsWith("-----"))
       {
         throw new InvalidDataException("The text is not PEM format!");
       }
@@ -59,6 +59,12 @@ namespace TrustyPay.Core.Cryptography
       );
     }
 
+    /// <summary>
+    /// Import public key by PEM file path
+    /// </summary>
+    /// <param name="path">PEM file path</param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException">PEM file path is invalid!</exception>
     public async static Task<RSACryptoProvider.PublicKey> ImportPublicKeyFromPemFileAsync(string path)
     {
       if (!File.Exists(path))
@@ -70,6 +76,13 @@ namespace TrustyPay.Core.Cryptography
       return ImportPublicKeyLines(lines);
     }
 
+    /// <summary>
+    /// Import public key by PEM text
+    /// </summary>
+    /// <param name="pem">PEM text</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">The text is null or empty string.</exception>
+    /// <exception cref="InvalidDataException">The text is not invalid PEM format!</exception>
     public static RSACryptoProvider.PublicKey ImportPublicKeyFromPemText(string pem)
     {
       if (string.IsNullOrEmpty(pem))
@@ -83,7 +96,7 @@ namespace TrustyPay.Core.Cryptography
 
     private static RSACryptoProvider.PublicKey ImportPublicKeyLines(string[] lines)
     {
-      if (lines == null || lines.Length == 0)
+      if (lines == null || lines.Length == 0 || !lines[0].StartsWith("-----"))
       {
         throw new InvalidDataException("The text is not PEM format!");
       }
