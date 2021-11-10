@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrustyPay.Core.Cryptography
 {
-  public static class RSAPrivateKeyFactory
+  public static class RSAKeyFactory
   {
     public async static Task<RSACryptoProvider.PrivateKey> ImportPrivateKeyFromPemFileAsync(string path)
     {

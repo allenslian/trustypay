@@ -6,7 +6,7 @@ namespace TrustyPay.Core.Cryptography
     /// <summary>
     /// AES encryption algorithm
     /// </summary>
-    public sealed class AESEncryptionProvider : IEncryptionProvider
+    public class AESEncryptionProvider : IEncryptionProvider
     {
         public enum KeySizes
         {
@@ -109,7 +109,7 @@ namespace TrustyPay.Core.Cryptography
         /// <param name="keySize"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        private static byte[] InitializeSecretKey(byte[] secretKey, KeySizes keySize)
+        protected virtual byte[] InitializeSecretKey(byte[] secretKey, KeySizes keySize)
         {
             if (secretKey == null || secretKey.Length == 0)
             {
@@ -127,7 +127,7 @@ namespace TrustyPay.Core.Cryptography
         /// <param name="iv"></param>
         /// <param name="keySize"></param>
         /// <returns></returns>
-        private static byte[] InitializeIV(byte[] iv, KeySizes keySize)
+        protected virtual byte[] InitializeIV(byte[] iv, KeySizes keySize)
         {
             var targetIV = new byte[GetDefaultBlockSize(keySize) / 8];
             if (iv == null || iv.Length == 0)
@@ -161,7 +161,7 @@ namespace TrustyPay.Core.Cryptography
         /// </summary>
         /// <param name="keySize">key size</param>
         /// <returns></returns>
-        private static int GetDefaultBlockSize(KeySizes keySize)
+        protected static int GetDefaultBlockSize(KeySizes keySize)
         {
             return keySize switch
             {

@@ -7,7 +7,7 @@ namespace TrustyPay.Core.Cryptography
     /// <summary>
     /// 3DES encryption algorithm
     /// </summary>
-    public sealed class TripleDESEncryptionProvider : IEncryptionProvider
+    public class TripleDESEncryptionProvider : IEncryptionProvider
     {
         /// <summary>
         /// A secret key 
@@ -78,7 +78,7 @@ namespace TrustyPay.Core.Cryptography
         /// <param name="secretKey"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        private static byte[] InitializeSecretKey(byte[] secretKey)
+        protected virtual byte[] InitializeSecretKey(byte[] secretKey)
         {
             if (secretKey == null || secretKey.Length == 0)
             {
@@ -97,7 +97,7 @@ namespace TrustyPay.Core.Cryptography
         /// </summary>
         /// <param name="iv"></param>
         /// <returns></returns>
-        private static byte[] InitializeIV(byte[] iv)
+        protected virtual byte[] InitializeIV(byte[] iv)
         {
             var targetIV = new byte[GetDefaultBlockSize() / 8];
             if (iv == null || iv.Length == 0)
@@ -115,7 +115,7 @@ namespace TrustyPay.Core.Cryptography
         /// </summary>
         /// <param name="keySize">key size</param>
         /// <returns></returns>
-        private static int GetDefaultBlockSize()
+        protected static int GetDefaultBlockSize()
         {
             return 64;
         }
