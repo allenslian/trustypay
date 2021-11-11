@@ -1,8 +1,8 @@
 using System;
 using System.Text;
-using Xunit;
 using System.Security.Cryptography;
-using TrustyPay.Core.Cryptography;
+
+using Xunit;
 
 namespace TrustyPay.Core.Cryptography.Fixtures
 {
@@ -142,6 +142,84 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             Assert.Throws<ArgumentNullException>(() =>
             {
                 var cipher = provider.DecryptFromBase64String("");
+            });
+        }
+
+        [Fact]
+        public void ShouldEncryptAndDecryptWithHex()
+        {
+            var plainText = "hello, world!";
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            
+            IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
+            var cipher = provider.EncryptToHexString(
+                Encoding.UTF8.GetBytes(plainText));
+            var plainBytes = provider.DecryptFromHexString(cipher);
+            Assert.Equal(plainText, Encoding.UTF8.GetString(plainBytes));
+        }
+
+        [Fact]
+        public void ShouldEncryptAndDecryptWithHex4()
+        {
+            var plainText = "hello, world!";
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            
+            IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
+            var cipher = provider.EncryptToHexString(
+                Encoding.UTF8.GetBytes(plainText), 4);
+            var plainBytes = provider.DecryptFromHexString(cipher, 4);
+            Assert.Equal(plainText, Encoding.UTF8.GetString(plainBytes));
+        }
+
+        [Fact]
+        public void ShouldFailToEncryptWithHex()
+        {
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            IEncryptionProvider provider = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.EncryptToHexString(null);
+            });
+            provider = new AESEncryptionProvider(secretKey, null);
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.EncryptToHexString(null);
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.EncryptToHexString(Array.Empty<byte>());
+            });
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var cipher = provider.EncryptToHexString(new byte[]{114}, 0);
+            });
+        }
+
+        [Fact]
+        public void ShouldFailToDecryptWithHex()
+        {
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            IEncryptionProvider provider = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.DecryptFromHexString(null);
+            });
+            provider = new AESEncryptionProvider(secretKey, null);
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.DecryptFromHexString(null);
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var cipher = provider.DecryptFromHexString("");
+            });
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var cipher = provider.DecryptFromHexString("E1", 0);
+            });
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var cipher = provider.DecryptFromHexString("E1", 3);
             });
         }
 
