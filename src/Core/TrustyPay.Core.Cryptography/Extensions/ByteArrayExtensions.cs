@@ -2,7 +2,7 @@ using System;
 
 namespace TrustyPay.Core.Cryptography
 {
-    internal static class ByteArrayExtensions
+    public static class ByteArrayExtensions
     {
         /// <summary>
         /// If source's length is greater than target's length, we'll only copy target's length.
@@ -30,6 +30,22 @@ namespace TrustyPay.Core.Cryptography
                 // it is not secure.
                 Array.Fill(target, (byte)letter, source.Length, target.Length - source.Length);
             }
+        }
+
+        /// <summary>
+        /// Convert byte array to base64 string.
+        /// </summary>
+        /// <param name="source">byte array</param>
+        /// <returns>base64 string</returns>
+        /// <exception cref="ArgumentNullException">Throw the exception when source is null or source's length is zero</exception>
+        public static string ToBase64String(this byte[] source)
+        {
+            if (source == null || source.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            return Convert.ToBase64String(source);
         }
 
         /// <summary>
