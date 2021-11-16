@@ -226,11 +226,11 @@ EwIDAQAB
             var provider = new RSACryptoProvider(pri, pub, RSAEncryptionPadding.Pkcs1);
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var cipherBytes = provider.Decrypt(null);
+                provider.Decrypt(null);
             });
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var cipherBytes = provider.Decrypt(Array.Empty<byte>());
+                provider.Decrypt(Array.Empty<byte>());
             });
         }
 

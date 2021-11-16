@@ -47,7 +47,7 @@ namespace TrustyPay.Core.Cryptography
         public PBKDF2DigestProvider(byte[] salt, HashAlgorithmName hashAlgorithmName, 
             int iterations = 10000, int hashSize = 16)
         {
-            if (salt == null)
+            if (salt == null || salt.Length == 0)
             {
                 throw new ArgumentNullException(nameof(salt));
             }
@@ -55,6 +55,11 @@ namespace TrustyPay.Core.Cryptography
             if (salt.Length < MinimumSaltSize)
             {
                 throw new ArgumentException("salt size should be greater than 8!!!", nameof(salt));
+            }
+
+            if (hashAlgorithmName == HashAlgorithmName.MD5)
+            {
+                throw new ArgumentException("does not support MD5 algorithm!", nameof(hashAlgorithmName));
             }
             
             if (iterations < 1)
@@ -75,6 +80,10 @@ namespace TrustyPay.Core.Cryptography
 
         public byte[] Hash(byte[] plainBytes)
         {
+            if (plainBytes == null || plainBytes.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(plainBytes));
+            }
             using var pbkdf2 = new Rfc2898DeriveBytes(plainBytes, 
                 _salt, _iterations, _hashAlgorithmName);
             return pbkdf2.GetBytes(_hashSize);
