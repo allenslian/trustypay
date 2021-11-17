@@ -18,7 +18,7 @@ namespace TrustyPay.Core.Cryptography
             }
 
             var signatureBytes = source.Sign(plainBytes, hashAlgorithm);
-            return Convert.ToBase64String(signatureBytes);
+            return signatureBytes.ToBase64String();
         }
 
         public static bool VerifyBase64Signature(
@@ -30,12 +30,12 @@ namespace TrustyPay.Core.Cryptography
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (string.IsNullOrEmpty(signatureText))
-            {
-                throw new ArgumentNullException(nameof(signatureText));
-            }
+            // if (string.IsNullOrEmpty(signatureText))
+            // {
+            //     throw new ArgumentNullException(nameof(signatureText));
+            // }
 
-            var signatureBytes = Convert.FromBase64String(signatureText);
+            var signatureBytes = signatureText.FromBase64String();
             return source.Verify(plainBytes, signatureBytes, hashAlgorithm);
         }
     }

@@ -1,4 +1,6 @@
-﻿using BenchmarkDotNet.Running;
+﻿using System.Reflection;
+using BenchmarkDotNet.Running;
+using TrustyPay.Core.Cryptography.Benchmarks.Hex;
 
 namespace TrustyPay.Core.Cryptography.Benchmarks
 {
@@ -6,7 +8,7 @@ namespace TrustyPay.Core.Cryptography.Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<HexBenchmark>();
+            BenchmarkRunner.Run(Assembly.GetExecutingAssembly());
         }
     }
 }

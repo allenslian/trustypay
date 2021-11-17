@@ -33,8 +33,8 @@ namespace TrustyPay.Core.Cryptography
             var index = 0;
             for (var i = 0; i < source.Length; i += paddingSize)
             {
-                var a = GetInt32Value(source[i]) * 16 + GetInt32Value(source[i + 1]);
-                buffer[index++] = (byte)a;
+                var byteValue = GetInt32Value(source[i + paddingSize - 2]) * 16 + GetInt32Value(source[i + paddingSize - 1]);
+                buffer[index++] = (byte)byteValue;
             }
             return buffer;
         }

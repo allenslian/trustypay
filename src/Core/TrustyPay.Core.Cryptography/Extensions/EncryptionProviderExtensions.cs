@@ -16,7 +16,7 @@ namespace TrustyPay.Core.Cryptography
         /// <returns>base64 cipher text</returns>
         /// <exception cref="ArgumentNullException">source is null, or plainBytes is null, or plainBytes length is zero.</exception>
         public static string EncryptToBase64String(
-            this IEncryptionProvider source, 
+            this IEncryptionProvider source,
             byte[] plainBytes)
         {
             if (source == null)
@@ -42,7 +42,7 @@ namespace TrustyPay.Core.Cryptography
         /// <returns>hex cipher text</returns>
         /// <exception cref="ArgumentNullException">source is null, or plainBytes is null, or plainBytes length is zero.</exception>
         public static string EncryptToHexString(
-            this IEncryptionProvider source, 
+            this IEncryptionProvider source,
             byte[] plainBytes, ushort paddingSize = 2)
         {
             if (source == null)
@@ -54,7 +54,7 @@ namespace TrustyPay.Core.Cryptography
             {
                 throw new ArgumentNullException(nameof(plainBytes));
             }
-            
+
             var cipherBytes = source.Encrypt(plainBytes);
             return cipherBytes.ToHexString(paddingSize);
         }
@@ -81,7 +81,7 @@ namespace TrustyPay.Core.Cryptography
                 throw new ArgumentNullException(nameof(cipherText));
             }
 
-            var cipherBytes = Convert.FromBase64String(cipherText);
+            var cipherBytes = cipherText.FromBase64String();
             return source.Decrypt(cipherBytes);
         }
 
@@ -102,10 +102,10 @@ namespace TrustyPay.Core.Cryptography
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (string.IsNullOrEmpty(cipherText))
-            {
-                throw new ArgumentNullException(nameof(cipherText));
-            }
+            // if (string.IsNullOrEmpty(cipherText))
+            // {
+            //     throw new ArgumentNullException(nameof(cipherText));
+            // }
 
             var cipherBytes = cipherText.FromHexString(paddingSize);
             return source.Decrypt(cipherBytes);

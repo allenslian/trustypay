@@ -74,18 +74,20 @@ namespace TrustyPay.Core.Cryptography
 
             var index = 0;
             var buffer = new char[source.Length * paddingSize];
-            for (var i = 0; i < buffer.Length; i+=paddingSize)
+            Array.Fill(buffer, '0');
+            for (var i = 0; i < buffer.Length; i += paddingSize)
             {
                 byte b = source[index++];
-                buffer[i] = GetHexChar(b / 16);
-                buffer[i+paddingSize-1] = GetHexChar(b % 16);
+                buffer[i + paddingSize - 2] = GetHexChar(b / 16);
+                buffer[i + paddingSize - 1] = GetHexChar(b % 16);
             }
             return new string(buffer);
         }
 
         private static char GetHexChar(int i)
         {
-            if (i<10) {
+            if (i < 10)
+            {
                 return (char)('0' + i);
             }
             return (char)('A' + i - 10);
