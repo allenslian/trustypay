@@ -30,13 +30,29 @@ namespace TrustyPay.Core.Cryptography
             }
 
             var buffer = new byte[source.Length / paddingSize];
-            for (var i = 0; i < buffer.Length; i += 1)
+            var index = 0;
+            for (var i = 0; i < source.Length; i += paddingSize)
             {
-                buffer[i] = Convert.ToByte(
-                    source[new Range(i * paddingSize, (i + 1) * paddingSize)],
-                    16);
+                var a = GetInt32Value(source[i]) * 16 + GetInt32Value(source[i + 1]);
+                buffer[index++] = (byte)a;
             }
             return buffer;
+        }
+
+        private static int GetInt32Value(char c)
+        {
+            if (c >= 'a')
+            {
+                return (c - 'a') + 10;
+            }
+            else if (c >= 'A')
+            {
+                return (c - 'A') + 10;
+            }
+            else
+            {
+                return c - '0';
+            }
         }
 
         /// <summary>

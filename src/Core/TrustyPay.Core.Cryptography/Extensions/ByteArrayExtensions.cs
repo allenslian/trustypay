@@ -67,13 +67,28 @@ namespace TrustyPay.Core.Cryptography
                 throw new ArgumentException("paddingSize should be greater than one!", nameof(paddingSize));
             }
 
-            var buffer = new System.Text.StringBuilder(source.Length * paddingSize);
-            var format = $"{{0:X{paddingSize}}}";
-            foreach (var b in source)
+            if (source.Length > int.MaxValue / paddingSize)
             {
-                buffer.AppendFormat(format, b);
+                throw new ArgumentOutOfRangeException(nameof(source), "source length is more than int max value!");
             }
-            return buffer.ToString();
+
+            var index = 0;
+            var buffer = new char[source.Length * paddingSize];
+            for (var i = 0; i < buffer.Length; i+=paddingSize)
+            {
+                byte b = source[index++];
+                buffer[i] = GetHexChar(b / 16);
+                buffer[i+paddingSize-1] = GetHexChar(b % 16);
+            }
+            return new string(buffer);
+        }
+
+        private static char GetHexChar(int i)
+        {
+            if (i<10) {
+                return (char)('0' + i);
+            }
+            return (char)('A' + i - 10);
         }
     }
 }

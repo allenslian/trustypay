@@ -16,6 +16,7 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+BenchmarkDotNet.Artifacts
 
 # User-specific files
 *.rsuser
