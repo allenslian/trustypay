@@ -72,7 +72,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         {
             var plainText = "hello, 世界";
             var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
-            var provider = new AESEncryptionProvider(secretKey, null);
+            var provider = new AESEncryptionProvider(secretKey, Encoding.ASCII.GetBytes("000000"));
             var cipherBytes = provider.Encrypt(Encoding.UTF8.GetBytes(plainText));
             var plainBytes = provider.Decrypt(cipherBytes);
             Assert.Equal(plainText, Encoding.UTF8.GetString(plainBytes));
@@ -150,7 +150,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         {
             var plainText = "hello, world!";
             var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
-            
+
             IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
             var cipher = provider.EncryptToHexString(
                 Encoding.UTF8.GetBytes(plainText));
@@ -163,7 +163,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         {
             var plainText = "hello, world!";
             var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
-            
+
             IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
             var cipher = provider.EncryptToHexString(
                 Encoding.UTF8.GetBytes(plainText), 4);
@@ -191,7 +191,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             });
             Assert.Throws<ArgumentException>(() =>
             {
-                var cipher = provider.EncryptToHexString(new byte[]{114}, 0);
+                var cipher = provider.EncryptToHexString(new byte[] { 114 }, 0);
             });
         }
 
@@ -236,6 +236,84 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             var cipherBytes = provider.Encrypt(Encoding.ASCII.GetBytes(plainText));
             var plainBytes = provider.Decrypt(cipherBytes);
             Assert.Equal(plainText, Encoding.ASCII.GetString(plainBytes));
+        }
+
+        [Theory]
+        [InlineData(AESEncryptionProvider.KeySizes.AES128)]
+        [InlineData(AESEncryptionProvider.KeySizes.AES192)]
+        [InlineData(AESEncryptionProvider.KeySizes.AES256)]
+        public void ShouldEncryptAndDecryptWithDifferentKeySizes(AESEncryptionProvider.KeySizes size)
+        {
+            var plainText = "hello";
+            var secretKey = Encoding.ASCII.GetBytes("a Secret Key!!!!!");
+            var provider = new AESEncryptionProvider(secretKey, Encoding.ASCII.GetBytes("000000"), size);
+            var cipherBytes = provider.Encrypt(Encoding.ASCII.GetBytes(plainText));
+            var plainBytes = provider.Decrypt(cipherBytes);
+            Assert.Equal(plainText, Encoding.ASCII.GetString(plainBytes));
+        }
+
+        [Fact]
+        public void ShouldFailToHexString()
+        {
+            byte[] source = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.ToHexString();
+            });
+
+            source = Array.Empty<byte>();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.ToHexString();
+            });
+
+            source = new byte[1 + Int32.MaxValue / 2];
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                source.ToHexString();
+            });
+        }
+
+        [Fact]
+        public void ShouldFailToBase64String()
+        {
+            byte[] source = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.ToBase64String();
+            });
+
+            source = Array.Empty<byte>();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.ToBase64String();
+            });
+        }
+
+        [Fact]
+        public void ShouldFailToPadLetters()
+        {
+            byte[] source = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(new byte[] { 128 }, 'A');
+            });
+
+            source = Array.Empty<byte>();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(new byte[] { 128 }, 'A');
+            });
+
+            source = new byte[] { 128 };
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(null, 'A');
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(Array.Empty<byte>(), 'A');
+            });
         }
     }
 }

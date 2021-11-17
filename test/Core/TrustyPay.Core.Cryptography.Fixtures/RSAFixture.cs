@@ -263,6 +263,14 @@ EwIDAQAB
             {
                 provider.SignToBase64String(Array.Empty<byte>(), HashAlgorithmName.SHA256);
             });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Sign(null, HashAlgorithmName.SHA256);
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Sign(Array.Empty<byte>(), HashAlgorithmName.SHA256);
+            });
         }
 
         [Fact]
@@ -280,12 +288,19 @@ EwIDAQAB
             provider = new RSACryptoProvider(pri, pub, RSASignaturePadding.Pkcs1);
             Assert.Throws<ArgumentNullException>(() =>
             {
-                provider.VerifyBase64Signature(null, string.Empty, HashAlgorithmName.SHA256);
+                provider.Verify(null, new byte[] { 128 }, HashAlgorithmName.SHA256);
             });
-
             Assert.Throws<ArgumentNullException>(() =>
             {
-                provider.VerifyBase64Signature(Array.Empty<byte>(), string.Empty, HashAlgorithmName.SHA256);
+                provider.Verify(Array.Empty<byte>(), new byte[] { 128 }, HashAlgorithmName.SHA256);
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Verify(new byte[] { 128 }, null, HashAlgorithmName.SHA256);
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.Verify(new byte[] { 128 }, Array.Empty<byte>(), HashAlgorithmName.SHA256);
             });
 
             Assert.Throws<ArgumentNullException>(() =>
