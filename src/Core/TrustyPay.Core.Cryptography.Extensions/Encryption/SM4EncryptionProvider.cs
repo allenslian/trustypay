@@ -32,6 +32,13 @@ namespace TrustyPay.Core.Cryptography
         /// </summary>
         private readonly CipherMode _mode;
 
+        /// <summary>
+        /// SM4 constructor
+        /// </summary>
+        /// <param name="secretKey">secret key</param>
+        /// <param name="iv">initialization vector</param>
+        /// <param name="mode">cipher mode</param>
+        /// <param name="padding">padding mode</param>
         public SM4EncryptionProvider(
             byte[] secretKey,
             byte[] iv,
