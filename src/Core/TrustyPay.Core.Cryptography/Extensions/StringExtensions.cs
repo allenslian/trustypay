@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace TrustyPay.Core.Cryptography
 {
@@ -39,6 +40,11 @@ namespace TrustyPay.Core.Cryptography
             return buffer;
         }
 
+        /// <summary>
+        /// Convert char to int
+        /// </summary>
+        /// <param name="c">char</param>
+        /// <returns>int</returns>
         private static int GetInt32Value(char c)
         {
             if (c >= 'a')
@@ -69,6 +75,60 @@ namespace TrustyPay.Core.Cryptography
             }
 
             return Convert.FromBase64String(source);
+        }
+
+        /// <summary>
+        /// Convert ascii string to byte array.
+        /// </summary>
+        /// <param name="source">ascii string</param>
+        /// <param name="charset">charset</param>
+        /// <returns>byte array</returns>
+        public static byte[] FromASCIIString(this string source)
+        {
+            if (source == null)
+            {
+                return Array.Empty<byte>();
+            }
+
+            return Encoding.ASCII.GetBytes(source);
+        }
+
+        /// <summary>
+        /// Convert utf-8 string to byte array.
+        /// </summary>
+        /// <param name="source">ascii string</param>
+        /// <param name="charset">charset</param>
+        /// <returns>byte array</returns>
+        public static byte[] FromUTF8String(this string source)
+        {
+            if (source == null)
+            {
+                return Array.Empty<byte>();
+            }
+
+            return Encoding.UTF8.GetBytes(source);
+        }
+
+        /// <summary>
+        /// Convert charset string to byte array.
+        /// </summary>
+        /// <param name="source">charset string</param>
+        /// <param name="charset">charset</param>
+        /// <returns>byte array</returns>
+        public static byte[] FromCharsetString(this string source, string charset)
+        {
+            if (string.IsNullOrEmpty(source))
+            {
+                return Array.Empty<byte>();
+            }
+
+            if (string.IsNullOrEmpty(charset))
+            {
+                return Encoding.Default.GetBytes(source);
+            }
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding(charset).GetBytes(source);
         }
     }
 }

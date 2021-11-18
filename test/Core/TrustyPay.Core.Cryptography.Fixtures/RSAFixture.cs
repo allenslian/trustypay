@@ -325,6 +325,32 @@ EwIDAQAB
         }
 
         [Fact]
+        public async void ShouldFailToSignHexWithPkcs1()
+        {
+            var plainBytes = Encoding.UTF8.GetBytes("hello, 世界");
+            var pri = await RSAKeyFactory.ImportPrivateKeyFromPemFileAsync("./keys/self_pkcs1.key");
+            var pub = await RSAKeyFactory.ImportPublicKeyFromPemFileAsync("./keys/self_pkcs1.pub");
+            ISignatureProvider provider = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.SignToHexString(null, HashAlgorithmName.SHA256);
+            });
+        }
+
+        [Fact]
+        public async void ShouldFailToVerifyHexWithPkcs1()
+        {
+            var plainBytes = Encoding.UTF8.GetBytes("hello, 世界");
+            var pri = await RSAKeyFactory.ImportPrivateKeyFromPemFileAsync("./keys/self_pkcs1.key");
+            var pub = await RSAKeyFactory.ImportPublicKeyFromPemFileAsync("./keys/self_pkcs1.pub");
+            ISignatureProvider provider = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                provider.VerifyHexSignature(null, string.Empty, HashAlgorithmName.SHA256);
+            });
+        }
+
+        [Fact]
         public async void ShouldSignAndVerifyBase64WithPkcs1()
         {
             var plainBytes = Encoding.UTF8.GetBytes("hello, 世界");
@@ -346,6 +372,18 @@ EwIDAQAB
             var signature = provider.SignToBase64String(plainBytes, HashAlgorithmName.SHA256);
 
             Assert.True(provider.VerifyBase64Signature(plainBytes, signature, HashAlgorithmName.SHA256));
+        }
+
+        [Fact]
+        public async void ShouldSignAndVerifyHexWithPkcs8()
+        {
+            var plainBytes = Encoding.UTF8.GetBytes("hello, 世界");
+            var pri = await RSAKeyFactory.ImportPrivateKeyFromPemFileAsync("./keys/self_pkcs8.key");
+            var pub = await RSAKeyFactory.ImportPublicKeyFromPemFileAsync("./keys/self_x509.pub");
+            var provider = new RSACryptoProvider(pri, pub, RSASignaturePadding.Pkcs1);
+            var signature = provider.SignToHexString(plainBytes, HashAlgorithmName.SHA256);
+
+            Assert.True(provider.VerifyHexSignature(plainBytes, signature, HashAlgorithmName.SHA256));
         }
 
         private async Task GeneratePkcs1PublicKeyAsync()

@@ -30,7 +30,7 @@ namespace TrustyPay.Core.Cryptography
             }
 
             var cipherBytes = source.Encrypt(plainBytes);
-            return Convert.ToBase64String(cipherBytes);
+            return cipherBytes.ToBase64String();
         }
 
         /// <summary>

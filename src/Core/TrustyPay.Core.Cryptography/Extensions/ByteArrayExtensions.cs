@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace TrustyPay.Core.Cryptography
 {
@@ -84,6 +85,11 @@ namespace TrustyPay.Core.Cryptography
             return new string(buffer);
         }
 
+        /// <summary>
+        /// Convert number to hex char
+        /// </summary>
+        /// <param name="i">number</param>
+        /// <returns>hex char</returns>
         private static char GetHexChar(int i)
         {
             if (i < 10)
@@ -91,6 +97,61 @@ namespace TrustyPay.Core.Cryptography
                 return (char)('0' + i);
             }
             return (char)('A' + i - 10);
+        }
+
+        /// <summary>
+        /// Convert byte array to ascii string.
+        /// </summary>
+        /// <param name="source">source byte array</param>
+        /// <returns>string</returns>
+        /// <exception cref="ArgumentNullException">Throw the exception when source is null or source's length is zero</exception>
+        public static string ToASCIIString(this byte[] source)
+        {
+            if (source == null || source.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            return Encoding.ASCII.GetString(source);
+        }
+
+        /// <summary>
+        /// Convert byte array to utf-8 string.
+        /// </summary>
+        /// <param name="source">source byte array</param>
+        /// <returns>string</returns>
+        /// <exception cref="ArgumentNullException">Throw the exception when source is null or source's length is zero</exception>
+        public static string ToUTF8String(this byte[] source)
+        {
+            if (source == null || source.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            return Encoding.UTF8.GetString(source);
+        }
+
+        /// <summary>
+        /// Convert byte array to charset string.
+        /// </summary>
+        /// <param name="source">source byte array</param>
+        /// <param name="charset">charset code, such as gbk</param>
+        /// <returns>string</returns>
+        /// <exception cref="ArgumentNullException">Throw the exception when source is null or source's length is zero</exception>
+        public static string ToCharsetString(this byte[] source, string charset)
+        {
+            if (source == null || source.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (string.IsNullOrEmpty(charset))
+            {
+                return Encoding.Default.GetString(source);
+            }
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncoding(charset).GetString(source);
         }
     }
 }

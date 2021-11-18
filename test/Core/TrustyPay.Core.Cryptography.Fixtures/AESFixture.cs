@@ -60,55 +60,56 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         public void ShouldEncryptAndDecryptAsciiText()
         {
             var plainText = "hello";
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key!!!!!");
+            var secretKey = "a Secret Key!!!!!".FromASCIIString();
             var provider = new AESEncryptionProvider(secretKey, null);
-            var cipherBytes = provider.Encrypt(Encoding.ASCII.GetBytes(plainText));
+            var cipherBytes = provider.Encrypt(plainText.FromASCIIString());
             var plainBytes = provider.Decrypt(cipherBytes);
-            Assert.Equal(plainText, Encoding.ASCII.GetString(plainBytes));
+            Assert.Equal(plainText, plainBytes.ToASCIIString());
         }
 
         [Fact]
         public void ShouldEncryptAndDecryptUTF8Text()
         {
             var plainText = "hello, 世界";
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
-            var provider = new AESEncryptionProvider(secretKey, Encoding.ASCII.GetBytes("000000"));
-            var cipherBytes = provider.Encrypt(Encoding.UTF8.GetBytes(plainText));
+            var secretKey = "a Secret Key".FromASCIIString();
+            var provider = new AESEncryptionProvider(
+                secretKey, 
+                "000000".FromASCIIString());
+            var cipherBytes = provider.Encrypt(plainText.FromUTF8String());
             var plainBytes = provider.Decrypt(cipherBytes);
-            Assert.Equal(plainText, Encoding.UTF8.GetString(plainBytes));
+            Assert.Equal(plainText, plainBytes.ToUTF8String());
         }
 
         [Fact]
         public void ShouldEncryptAndDecryptGBKText()
         {
             var plainText = "hello, 世界";
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            var secretKey = "a Secret Key".FromASCIIString();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var provider = new AESEncryptionProvider(secretKey, null);
-            var cipherBytes = provider.Encrypt(Encoding.GetEncoding("GBK").GetBytes(plainText));
+            var cipherBytes = provider.Encrypt(plainText.FromCharsetString("gbk"));
             var plainBytes = provider.Decrypt(cipherBytes);
-            Assert.Equal(plainText, Encoding.GetEncoding("GBK").GetString(plainBytes));
+            Assert.Equal(plainText, plainBytes.ToCharsetString("gbk"));
         }
 
         [Fact]
         public void ShouldEncryptAndDecryptWithBase64()
         {
             var plainText = "hello, 世界";
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            var secretKey = "a Secret Key".FromASCIIString();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
-            var cipher = provider.EncryptToBase64String(
-                Encoding.GetEncoding("GBK").GetBytes(plainText));
+            var cipher = provider.EncryptToBase64String(plainText.FromCharsetString("gbk"));
             var plainBytes = provider.DecryptFromBase64String(cipher);
-            Assert.Equal(plainText, Encoding.GetEncoding("GBK").GetString(plainBytes));
+            Assert.Equal(plainText, plainBytes.ToCharsetString("gbk"));
         }
 
         [Fact]
         public void ShouldFailToEncryptWithBase64()
         {
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            var secretKey = "a Secret Key".FromASCIIString();
             IEncryptionProvider provider = null;
             Assert.Throws<ArgumentNullException>(() =>
             {
@@ -128,7 +129,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         [Fact]
         public void ShouldFailToDecryptWithBase64()
         {
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            var secretKey = "a Secret Key".FromASCIIString();
             IEncryptionProvider provider = null;
             Assert.Throws<ArgumentNullException>(() =>
             {
@@ -149,7 +150,7 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         public void ShouldEncryptAndDecryptWithHex()
         {
             var plainText = "hello, world!";
-            var secretKey = Encoding.ASCII.GetBytes("a Secret Key");
+            var secretKey = "a Secret Key".FromASCIIString();
 
             IEncryptionProvider provider = new AESEncryptionProvider(secretKey, null);
             var cipher = provider.EncryptToHexString(
@@ -253,6 +254,32 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         }
 
         [Fact]
+        public void ShouldFailToPadLetters()
+        {
+            byte[] source = null;
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(new byte[] { 128 }, 'A');
+            });
+
+            source = Array.Empty<byte>();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(new byte[] { 128 }, 'A');
+            });
+
+            source = new byte[] { 128 };
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(null, 'A');
+            });
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                source.PadLetters(Array.Empty<byte>(), 'A');
+            });
+        }
+
+        [Fact]
         public void ShouldFailToHexString()
         {
             byte[] source = null;
@@ -291,29 +318,28 @@ namespace TrustyPay.Core.Cryptography.Fixtures
         }
 
         [Fact]
-        public void ShouldFailToPadLetters()
+        public void ShouldFailToFromCharsetString()
+        {
+            string source = null;
+            Assert.Empty(source.FromASCIIString());
+            Assert.Empty(source.FromUTF8String());
+            Assert.Empty(source.FromCharsetString("gbk"));
+            source = "hello";
+            Assert.True(source.FromCharsetString(null).Length == source.Length);
+        }
+
+        [Fact]
+        public void ShouldFailToCharsetString()
         {
             byte[] source = null;
+            Assert.Empty(source.ToASCIIString());
+            Assert.Empty(source.ToUTF8String());
             Assert.Throws<ArgumentNullException>(() =>
             {
-                source.PadLetters(new byte[] { 128 }, 'A');
+                source.ToCharsetString("gbk");
             });
-
-            source = Array.Empty<byte>();
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                source.PadLetters(new byte[] { 128 }, 'A');
-            });
-
             source = new byte[] { 128 };
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                source.PadLetters(null, 'A');
-            });
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                source.PadLetters(Array.Empty<byte>(), 'A');
-            });
+            Assert.True(source.ToCharsetString(null).Length == source.Length);
         }
     }
 }
