@@ -65,6 +65,11 @@ namespace TrustyPay.Core.Cryptography.Fixtures
                 var priKey = RSAKeyFactory.ImportPublicKeyFromPemText(null);
             });
 
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var priKey = RSAKeyFactory.ImportPublicKeyFromPemText("");
+            });
+
             Assert.Throws<InvalidDataException>(() =>
             {
                 var priKey = RSAKeyFactory.ImportPublicKeyFromPemText("./keys/self_pkcs2.key");
