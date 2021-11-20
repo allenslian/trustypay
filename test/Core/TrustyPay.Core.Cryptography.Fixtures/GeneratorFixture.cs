@@ -118,5 +118,19 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             Assert.True(pairs.Item2.Key.Length > 0);
             Assert.True(pairs.Item2.Format == RSACryptoProvider.PublicKeyFormat.X509);
         }
+
+        [Fact]
+        public void ShouldGenerateSM2KeyPair()
+        {
+            var pairs = SM2KeyGenerator.GenerateKeyPair();
+
+            var priHexKey = pairs.Item1.ToHexString();
+            Assert.NotNull(pairs);
+            Assert.True(pairs.Item1.Length > 30); // 32 or 33
+
+            var pubHexKey = pairs.Item2.ToHexString();
+            Assert.Equal(65, pairs.Item2.Length);
+            Assert.True(pubHexKey.StartsWith("04"));
+        }
     }
 }
