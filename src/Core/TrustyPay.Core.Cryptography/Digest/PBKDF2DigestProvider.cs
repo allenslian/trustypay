@@ -69,7 +69,7 @@ namespace TrustyPay.Core.Cryptography
 
             if (hashSize < 1)
             {
-                throw new ArgumentException("keySize should be greater than 0!!!", nameof(hashSize));
+                throw new ArgumentException("hashSize should be greater than 0!!!", nameof(hashSize));
             }
 
             _salt = salt;
