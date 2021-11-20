@@ -3,8 +3,13 @@ using System.Security.Cryptography;
 
 namespace TrustyPay.Core.Cryptography
 {
-    public class SecretKeyGenerator
+    public static class SecretKeyGenerator
     {
+        /// <summary>
+        /// A charsets, which excludes I,l,O,o because they are similiar.
+        /// </summary>
+        private const string Charsets = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz0123456789";
+
         /// <summary>
         /// Generate random bytes
         /// </summary>
@@ -90,13 +95,13 @@ namespace TrustyPay.Core.Cryptography
         public static string GenerateRandomAlphabets(int size = 8)
         {
             var buffer = GenerateRandomBytes(size);
-            var chars = new char[size];
+            var alphabets = new char[size];
             for (var i = 0; i < buffer.Length; i++)
             {
-                var m = buffer[i] % 52;
-                chars[i] = m >= 26 ? (char)(m - 26 + 'a') : (char)(m + 'A'); // 52 means a-z + A-Z
+                var m = buffer[i] % 48;
+                alphabets[i] = Charsets[m];
             }
-            return new string(chars);
+            return new string(alphabets);
         }
 
         /// <summary>
@@ -107,24 +112,13 @@ namespace TrustyPay.Core.Cryptography
         public static string GenerateRandomAlphabetAndNumbers(int size = 8)
         {
             var buffer = GenerateRandomBytes(size);
-            var numbers = new char[size];
+            var chars = new char[size];
             for (var i = 0; i < buffer.Length; i++)
             {
-                var m = buffer[i] % 62; // 62 means 0-9 + a-z + A-Z
-                if (m >= 36)
-                {
-                    numbers[i] = (char)(m - 36 + 'a');
-                }
-                else if (m >= 10)
-                {
-                    numbers[i] = (char)(m - 10 + 'A');
-                }
-                else
-                {
-                    numbers[i] = (char)(m + '0');
-                }
+                var m = buffer[i] % Charsets.Length;
+                chars[i] = Charsets[m];
             }
-            return new string(numbers);
+            return new string(chars);
         }
     }
 }

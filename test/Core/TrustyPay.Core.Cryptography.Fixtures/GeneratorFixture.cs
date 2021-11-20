@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xunit;
 
 namespace TrustyPay.Core.Cryptography.Fixtures
@@ -56,6 +57,9 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             var numbers = SecretKeyGenerator.GenerateRandomNumbers(8);
             Assert.NotNull(numbers);
             Assert.True(numbers.Length == 8);
+
+            var allNumbers = numbers.All(c => char.IsNumber(c));
+            Assert.True(allNumbers);
         }
 
         [Fact]
@@ -64,14 +68,20 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             var alphabets = SecretKeyGenerator.GenerateRandomAlphabets(12);
             Assert.NotNull(alphabets);
             Assert.True(alphabets.Length == 12);
+
+            var allLetters = alphabets.All(c => char.IsLetter(c));
+            Assert.True(allLetters);
         }
 
         [Fact]
         public void ShouldGenerateAlphabetAndNumbersString()
         {
-            var rand = SecretKeyGenerator.GenerateRandomAlphabetAndNumbers(16);
-            Assert.NotNull(rand);
-            Assert.True(rand.Length == 16);
+            var chars = SecretKeyGenerator.GenerateRandomAlphabetAndNumbers(16);
+            Assert.NotNull(chars);
+            Assert.True(chars.Length == 16);
+
+            var allLetterAndNumbers = chars.All(c => char.IsLetterOrDigit(c));
+            Assert.True(allLetterAndNumbers);
         }
     }
 }
