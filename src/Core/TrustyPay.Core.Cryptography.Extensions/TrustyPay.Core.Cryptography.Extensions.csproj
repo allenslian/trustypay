@@ -10,6 +10,19 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+
+    <PackageId>TrustyPay.Core.Cryptography.Extensions</PackageId>
+    <Version>0.0.1</Version>
+    <PackageTags>Cryptography;Encryption;Signature;</PackageTags>
+    <Description>
+      This library is a simple utility for encryption and signature. It includes SM2/SM4 algorithm.
+    </Description>
+    <Authors>allen lian</Authors>
+    <Company>LiangJiang Tech Co.,Ltd</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) LiangJiang 2021</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/allenslian/trustypay</PackageProjectUrl>
   </PropertyGroup>
 
 </Project>
