@@ -83,5 +83,40 @@ namespace TrustyPay.Core.Cryptography.Fixtures
             var allLetterAndNumbers = chars.All(c => char.IsLetterOrDigit(c));
             Assert.True(allLetterAndNumbers);
         }
+
+        [Fact]
+        public void ShouldFailToGenerateRSAPkcs1KeyPair()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                RSAKeyGenerator.GenerateKeyPair(100);
+            });
+            Assert.Throws<NotSupportedException>(() =>
+            {
+                RSAKeyGenerator.GenerateKeyPair(1024, (RSACryptoProvider.PrivateKeyFormat)100);
+            });
+        }
+
+        [Fact]
+        public void ShouldGenerateRSAPkcs1KeyPair()
+        {
+            var pairs = RSAKeyGenerator.GenerateKeyPair();
+            Assert.NotNull(pairs);
+            Assert.True(pairs.Item1.Key.Length > 0);
+            Assert.True(pairs.Item1.Format == RSACryptoProvider.PrivateKeyFormat.Pkcs1);
+            Assert.True(pairs.Item2.Key.Length > 0);
+            Assert.True(pairs.Item2.Format == RSACryptoProvider.PublicKeyFormat.Pkcs1);
+        }
+
+        [Fact]
+        public void ShouldGenerateRSAPkcs8KeyPair()
+        {
+            var pairs = RSAKeyGenerator.GenerateKeyPair(2048, RSACryptoProvider.PrivateKeyFormat.Pkcs8);
+            Assert.NotNull(pairs);
+            Assert.True(pairs.Item1.Key.Length > 0);
+            Assert.True(pairs.Item1.Format == RSACryptoProvider.PrivateKeyFormat.Pkcs8);
+            Assert.True(pairs.Item2.Key.Length > 0);
+            Assert.True(pairs.Item2.Format == RSACryptoProvider.PublicKeyFormat.X509);
+        }
     }
 }
