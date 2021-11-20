@@ -12,7 +12,7 @@
     <TargetFramework>net5.0</TargetFramework>
 
     <PackageId>TrustyPay.Core.Cryptography.Extensions</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <PackageTags>Cryptography;Encryption;Signature;</PackageTags>
     <Description>
       This library is a simple utility for encryption and signature. It includes SM2/SM4 algorithm.
