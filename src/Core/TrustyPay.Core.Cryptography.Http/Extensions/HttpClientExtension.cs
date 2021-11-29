@@ -17,10 +17,11 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <param name="client">A http client instance</param>
         /// <param name="apiUrl">relative api url</param>
         /// <param name="bizContent">request biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>A response biz content</returns>
         /// <exception cref="ArgumentNullException">A http client instance is null</exception>
         public static async Task<U> PostJsonAsync<T, U>(
-            this IHttpClient client, string apiUrl, T bizContent)
+            this IHttpClient client, string apiUrl, T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
             if (client == null)
             {
@@ -32,7 +33,7 @@ namespace TrustyPay.Core.Cryptography.Http
             try
             {
                 var response = await url.PostJsonAsync(
-                    client.GenerateRequestBody(apiUrl, bizContent)
+                    client.GenerateRequestBody(apiUrl, bizContent, extra)
                 );
                 return client.ParseResponseBody<U>(await response.GetStringAsync());
             }
@@ -50,10 +51,11 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <param name="client">A http client instance</param>
         /// <param name="apiUrl">relative api url</param>
         /// <param name="bizContent">request biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>A response biz content</returns>
         /// <exception cref="ArgumentNullException">A http client instance is null</exception>
         public static async Task<U> GetAsync<T, U>(
-            this IHttpClient client, string apiUrl, T bizContent)
+            this IHttpClient client, string apiUrl, T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
             if (client == null)
             {
@@ -63,7 +65,7 @@ namespace TrustyPay.Core.Cryptography.Http
             var url = ConcatenateApiUrl(
                 client.ApiBaseUrl, 
                 apiUrl, 
-                client.GenerateRequestBody(apiUrl, bizContent));
+                client.GenerateRequestBody(apiUrl, bizContent, extra));
             try
             {
                 var response = await url.GetAsync();
@@ -83,10 +85,11 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <param name="client">A http client instance</param>
         /// <param name="apiUrl">relative api url</param>
         /// <param name="bizContent">request biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>A response biz content</returns>
         /// <exception cref="ArgumentNullException">A http client instance is null</exception>
         public static async Task<U> PutJsonAsync<T, U>(
-            this IHttpClient client, string apiUrl, T bizContent)
+            this IHttpClient client, string apiUrl, T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
             if (client == null)
             {
@@ -98,7 +101,7 @@ namespace TrustyPay.Core.Cryptography.Http
             try
             {
                 var response = await url.PutJsonAsync(
-                    client.GenerateRequestBody(apiUrl, bizContent)
+                    client.GenerateRequestBody(apiUrl, bizContent, extra)
                 );
                 return client.ParseResponseBody<U>(await response.GetStringAsync());
             }
@@ -116,9 +119,11 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <param name="client">A http client instance</param>
         /// <param name="apiUrl">relative api url</param>
         /// <param name="bizContent">request biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>A response biz content</returns>
         /// <exception cref="ArgumentNullException">A http client instance is null</exception>
-        public static async Task<U> DeleteAsync<T, U>(this IHttpClient client, string apiUrl, T bizContent)
+        public static async Task<U> DeleteAsync<T, U>(
+            this IHttpClient client, string apiUrl, T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
             if (client == null)
             {
@@ -128,7 +133,7 @@ namespace TrustyPay.Core.Cryptography.Http
             var url = ConcatenateApiUrl(
                 client.ApiBaseUrl, 
                 apiUrl, 
-                client.GenerateRequestBody(apiUrl, bizContent));
+                client.GenerateRequestBody(apiUrl, bizContent, extra));
             try
             {
                 var response = await url.DeleteAsync();

@@ -20,9 +20,10 @@ namespace TrustyPay.Core.Cryptography.Http
 
         #region Request
 
-        public IReadOnlyDictionary<string, object> GenerateRequestBody<T>(string url, T bizContent)
+        public IReadOnlyDictionary<string, object> GenerateRequestBody<T>(
+            string url, T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
-            var body = InitializeRequestBody(bizContent);
+            var body = InitializeRequestBody(bizContent, extra);
             if (body == null)
             {
                 body = new Dictionary<string, object>();
@@ -38,8 +39,12 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <summary>
         /// Initialize request body
         /// </summary>
+        /// <typeparam name="T">A biz content class</typeparam>
+        /// <param name="bizContent">request biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>request body</returns>
-        protected abstract Dictionary<string, object> InitializeRequestBody<T>(T bizContent);
+        protected abstract Dictionary<string, object> InitializeRequestBody<T>(
+            T bizContent, IReadOnlyDictionary<string, object> extra = null);
 
         /// <summary>
         /// If Signer is null, the method will not be invoked;

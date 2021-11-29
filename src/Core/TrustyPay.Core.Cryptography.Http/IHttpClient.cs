@@ -17,8 +17,10 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <typeparam name="T">A biz content class</typeparam>
         /// <param name="url">api url</param>
         /// <param name="bizContent">biz content</param>
+        /// <param name="extra">extra parameters</param>
         /// <returns>A dictionary</returns>
-        IReadOnlyDictionary<string, object> GenerateRequestBody<T>(string url, T bizContent);
+        IReadOnlyDictionary<string, object> GenerateRequestBody<T>(
+            string url, T bizContent, IReadOnlyDictionary<string, object> extra = null);
 
         /// <summary>
         /// Parse http response body
