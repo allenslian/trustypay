@@ -1,32 +1,29 @@
-
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures
 {
     public class FakeHttpClient : HttpClientBase
     {
-        private ILogger<FakeHttpClient> _logger;
+        private string _apiKey;
 
-        public FakeHttpClient()
+        public FakeHttpClient(string apiBaseUrl, string apiKey)
         {
+            ApiBaseUrl = apiBaseUrl ?? string.Empty;
+            _apiKey = apiKey;
         }
 
         protected override U GetResponseBizContent<U>(IReadOnlyDictionary<string, object> body)
         {
-            return JsonConvert.DeserializeObject<U>(body["biz_content"].ToString());
+            return JsonConvert.DeserializeObject<U>(body["response_biz_content"].ToString());
         }
 
         protected override Exception GetResponseError(IReadOnlyDictionary<string, object> body)
         {
-
-            return new Exception(body["response"].ToString());
+            return new Exception(body["response_biz_content"].ToString());
         }
 
         protected override Dictionary<string, object> InitializeRequestBody<T>(
@@ -34,8 +31,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
         {
             var body = new Dictionary<string, object>
             {
+                {"api_key", _apiKey},
                 {"charset", "utf-8"},
-                {"biz_content", bizContent},
+                {"biz_content", IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
             };
             if (extra != null)
             {
@@ -88,7 +86,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
             }
             var text = buffer.ToString(0, buffer.Length - 1);
             return Signer.VerifyBase64Signature(
-                text.FromUTF8String(), 
+                text.FromUTF8String(),
                 body["sign"].ToString(),
                 HashAlgorithmName.SHA256);
         }

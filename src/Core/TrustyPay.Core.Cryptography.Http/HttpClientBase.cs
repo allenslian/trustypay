@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TrustyPay.Core.Cryptography.Http
 {
@@ -95,7 +96,7 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <param name="body">response body map</param>
         /// <returns>true is passed</returns>
         protected abstract bool Verify(IReadOnlyDictionary<string, object> body);
-        
+
         /// <summary>
         /// Get response biz content
         /// </summary>
@@ -136,6 +137,14 @@ namespace TrustyPay.Core.Cryptography.Http
         protected abstract Exception GetResponseError(IReadOnlyDictionary<string, object> body);
 
         #endregion
+
+        protected bool IsPrimitiveType<T>()
+        {
+            string[] primitives = new string[] {
+                "String","Int32","Int64","Boolean","Double","Single", "Decimal", "Char","Byte", "Int16", "Uint32", "Uint64", "Uint16", "SByte"
+            };
+            return primitives.Contains(typeof(T).Name);
+        }
 
     }
 }

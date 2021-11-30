@@ -1,68 +1,110 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Flurl.Http.Testing;
+using Newtonsoft.Json;
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures
 {
     public class HttpClientFixture
     {
-        public void ShouldBe()
+        [Fact]
+        public async Task ShouldGetOneObject()
         {
+            using (var httpTest = new HttpTest())
+            {
+                httpTest.RespondWithJson(new Dictionary<string, object>{
+                    {
+                        "response_biz_content", @"{
+                            ""return_code"": ""0"", 
+                            ""return_msg"": ""OK"",
+                            ""msg_id"":""urcnl24ciutr9"",
+                            ""sumPayamt"": ""1"",
+                            ""orderCurr"": ""001"",
+                            ""orderAmount"": ""1"",
+                            ""agreeName"": ""1"",
+                            ""serialNo"": ""1"",
+                            ""agreeCode"": ""1"",
+                            ""partnerSeq"": ""1"",
+                            ""redirectParam"": ""1"",
+                            ""payMode"": ""1"",
+                            ""status"": ""1""
+                            }"
+                    },
+                    { "sign", "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"}
+                });
 
+                IHttpClient client = new FakeHttpClient("http://localhost:5000", "abcd1234");
+                var bizContent = await client.GetAsync<RequestContent, ResponseContent>("/api/v1/greeting", new RequestContent
+                {
+                    OrderCode = "2021021501",
+                    Remark = "备注"
+                }, null);
+
+                Assert.Equal("0", bizContent.ReturnCode);
+                Assert.Equal("OK", bizContent.ReturnMsg);
+                Assert.Equal("1", bizContent.Status);
+            }
+        }
+
+        [Fact]
+        public async Task ShouldPostOneObject()
+        {
+            using (var httpTest = new HttpTest())
+            {
+                httpTest.RespondWithJson(new Dictionary<string, object>{
+                    {
+                        "response_biz_content", @"{
+                            ""return_code"": ""0"", 
+                            ""return_msg"": ""OK"",
+                            ""msg_id"":""urcnl24ciutr9"",
+                            ""sumPayamt"": ""1"",
+                            ""orderCurr"": ""001"",
+                            ""orderAmount"": ""1"",
+                            ""agreeName"": ""1"",
+                            ""serialNo"": ""1"",
+                            ""agreeCode"": ""1"",
+                            ""partnerSeq"": ""1"",
+                            ""redirectParam"": ""1"",
+                            ""payMode"": ""1"",
+                            ""status"": ""1""
+                            }"
+                    },
+                    { "sign", "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"}
+                });
+
+                IHttpClient client = new FakeHttpClient("http://localhost:5000", "abcd1234");
+                var bizContent = await client.GetAsync<RequestContent, ResponseContent>("/api/v1/greeting", new RequestContent
+                {
+                    OrderCode = "2021021501",
+                    Remark = "备注"
+                }, null);
+
+                Assert.Equal("0", bizContent.ReturnCode);
+                Assert.Equal("OK", bizContent.ReturnMsg);
+                Assert.Equal("1", bizContent.Status);
+            }
         }
     }
 
-    public interface IHttpClient
+    internal class ResponseContent
     {
-        Task<TResponse> PostAsync<TRequest, TResponse>(string url, TRequest data);
+        [JsonProperty("return_code")]
+        public string ReturnCode { get; set; }
 
-        Task<U> GetAsync<T, U>(string url, T data);
+        [JsonProperty("return_msg")]
+        public string ReturnMsg { get; set; }
 
-        Task DeleteAsync<T>(string url, T data);
+        [JsonProperty("status")]
+        public string Status { get; set; }
     }
 
-    internal class HttpClient
+    internal class RequestContent
     {
-        protected readonly string _apiBaseUrl;
+        [JsonProperty("order_code")]
+        public string OrderCode { get; set; }
 
-        public HttpClient(string apiBaseUrl)
-        {
-            _apiBaseUrl = apiBaseUrl;
-
-        }
-
-        public void SetSignatureProvider()
-        {
-
-        }
-
-        public Dictionary<string, object> GenerateRequestBody<T>(T bizContent)
-        {
-            var map = GetBody();
-
-            var encryption = Encrypt(bizContent);
-            map.TryAdd(encryption.Key, encryption.Value);
-
-            var signature = Sign();
-            map.TryAdd(signature.Key, signature.Value);
-
-            return map;
-        }
-
-        protected Dictionary<string, object> GetBody()
-        {
-            return new Dictionary<string, object>();
-        }
-
-        protected KeyValuePair<string, object> Encrypt<T>(T bizContent)
-        {
-            return new KeyValuePair<string, object>();
-        }
-
-        protected KeyValuePair<string, object> Sign()
-        {
-            return new KeyValuePair<string, object>();
-        }
-
+        [JsonProperty("remark")]
+        public string Remark { get; set; }
     }
 }
