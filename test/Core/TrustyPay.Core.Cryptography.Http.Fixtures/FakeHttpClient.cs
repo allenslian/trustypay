@@ -6,13 +6,13 @@ using Newtonsoft.Json;
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures
 {
-    public class FakeHttpClient : HttpClientBase
+    public sealed class FakeHttpClient : HttpClientBase
     {
-        private string _apiKey;
+        private readonly string _apiKey;
 
         public FakeHttpClient(string apiBaseUrl, string apiKey)
         {
-            ApiBaseUrl = apiBaseUrl ?? string.Empty;
+            ApiBaseUrl = apiBaseUrl;
             _apiKey = apiKey;
         }
 
@@ -35,6 +35,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
                 {"charset", "utf-8"},
                 {"biz_content", IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
             };
+
             if (extra != null)
             {
                 foreach (var kv in extra)
@@ -84,9 +85,8 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
                 }
                 buffer.Append($"{kv.Key}={kv.Value}&");
             }
-            var text = buffer.ToString(0, buffer.Length - 1);
-            return Signer.VerifyBase64Signature(
-                text.FromUTF8String(),
+            var text = buffer.ToString(0, buffer.Length - 1).FromUTF8String();
+            return Signer.VerifyBase64Signature(text,
                 body["sign"].ToString(),
                 HashAlgorithmName.SHA256);
         }

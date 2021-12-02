@@ -158,18 +158,9 @@ namespace TrustyPay.Core.Cryptography.Http
             string apiUrl, 
             IReadOnlyDictionary<string, object> body)
         {
-            var url = new StringBuilder($"{apiBaseUrl}/{apiUrl}".Length);
-            if (!string.IsNullOrEmpty(apiBaseUrl))
-            {
-                url.Append(apiBaseUrl.TrimEnd('/'));
-            }
-
-            if (!string.IsNullOrEmpty(apiUrl))
-            {
-                url.Append($"/{apiUrl.TrimStart('/')}");
-            }
-
-            if (url.Length == 0)
+            var url = new Flurl.Url(apiBaseUrl)
+                .AppendPathSegment(apiUrl);
+            if (url.ToString() == string.Empty)
             {
                 throw new ArgumentException("An invalid url!!!", nameof(apiUrl));
             }
@@ -179,21 +170,12 @@ namespace TrustyPay.Core.Cryptography.Http
                 return url.ToString();
             }
 
-            if (!apiUrl.Contains('?'))
+            _ = body.Aggregate(url, (acc, kv) =>
             {
-                url.Append('?');
-            }
-            else if (!apiUrl.EndsWith('&'))
-            {
-                url.Append('&');
-            }
-
-            var absoluteUrl = body.Aggregate(url, (acc, kv) =>
-            {
-                acc.Append($"{kv.Key}={kv.Value}&");
+                acc.SetQueryParam(kv.Key, kv.Value);
                 return acc;
             });
-            return absoluteUrl.ToString(0, absoluteUrl.Length - 1);
+            return url.ToString();
         }
     }
 }

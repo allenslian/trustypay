@@ -138,7 +138,12 @@ namespace TrustyPay.Core.Cryptography.Http
 
         #endregion
 
-        protected bool IsPrimitiveType<T>()
+        /// <summary>
+        /// Whether biz content type is primitive type?
+        /// </summary>
+        /// <typeparam name="T">biz Content class</typeparam>
+        /// <returns>true/false</returns>
+        protected static bool IsPrimitiveType<T>()
         {
             string[] primitives = new string[] {
                 "String","Int32","Int64","Boolean","Double","Single", "Decimal", "Char","Byte", "Int16", "Uint32", "Uint64", "Uint16", "SByte"
