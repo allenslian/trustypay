@@ -160,22 +160,25 @@ namespace TrustyPay.Core.Cryptography.Http
         {
             var url = new Flurl.Url(apiBaseUrl)
                 .AppendPathSegment(apiUrl);
-            if (url.ToString() == string.Empty)
+
+            var absoluteUrl = url.ToString();
+            if (string.IsNullOrEmpty(absoluteUrl)
+                || !absoluteUrl.StartsWith("http"))
             {
                 throw new ArgumentException("An invalid url!!!", nameof(apiUrl));
             }
 
             if (body == null)
             {
-                return url.ToString();
+                return absoluteUrl;
             }
 
-            _ = body.Aggregate(url, (acc, kv) =>
+            absoluteUrl = body.Aggregate(url, (acc, kv) =>
             {
                 acc.SetQueryParam(kv.Key, kv.Value);
                 return acc;
-            });
-            return url.ToString();
+            }).ToString();
+            return absoluteUrl;
         }
     }
 }

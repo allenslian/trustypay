@@ -7,8 +7,17 @@ using System.Threading.Tasks;
 
 namespace TrustyPay.Core.Cryptography
 {
+    /// <summary>
+    /// RSA Key Factory
+    /// </summary>
     public static class RSAKeyFactory
     {
+        /// <summary>
+        /// Import private key from file.
+        /// </summary>
+        /// <param name="path">file path</param>
+        /// <returns>RSACryptoProvider.PrivateKey</returns>
+        /// <exception cref="FileNotFoundException">file path is incorrect</exception>
         public async static Task<RSACryptoProvider.PrivateKey> ImportPrivateKeyFromPemFileAsync(string path)
         {
             if (!File.Exists(path))
@@ -20,6 +29,12 @@ namespace TrustyPay.Core.Cryptography
             return ImportPrivateKeyLines(lines);
         }
 
+        /// <summary>
+        /// Import private key from pem text.
+        /// </summary>
+        /// <param name="pem">pem text</param>
+        /// <returns>RSACryptoProvider.PrivateKey</returns>
+        /// <exception cref="ArgumentNullException">file path is incorrect</exception>
         public static RSACryptoProvider.PrivateKey ImportPrivateKeyFromPemText(string pem)
         {
             if (string.IsNullOrEmpty(pem))
@@ -29,6 +44,21 @@ namespace TrustyPay.Core.Cryptography
 
             var lines = pem.Split('\n');
             return ImportPrivateKeyLines(lines);
+        }
+        
+        /// <summary>
+        /// Import private key from base64 string
+        /// </summary>
+        /// <param name="privateKey">base64 string</param>
+        /// <param name="format">RSACryptoProvider.PrivateKeyFormat</param>
+        /// <returns>RSACryptoProvider.PrivateKey</returns>
+        public static RSACryptoProvider.PrivateKey ImportPrivateKeyFromBase64String(
+            string privateKey, 
+            RSACryptoProvider.PrivateKeyFormat format = RSACryptoProvider.PrivateKeyFormat.Pkcs1)
+        {
+            return new RSACryptoProvider.PrivateKey(
+              Convert.FromBase64String(privateKey), format
+            );
         }
 
         private static RSACryptoProvider.PrivateKey ImportPrivateKeyLines(string[] lines)
@@ -93,6 +123,21 @@ namespace TrustyPay.Core.Cryptography
 
             var lines = pem.Split('\n');
             return ImportPublicKeyLines(lines);
+        }
+
+        /// <summary>
+        /// Import public key from base64 string
+        /// </summary>
+        /// <param name="privateKey">base64 string</param>
+        /// <param name="format">RSACryptoProvider.PublicKeyFormat</param>
+        /// <returns>RSACryptoProvider.PublicKey</returns>
+        public static RSACryptoProvider.PublicKey ImportPublicKeyFromBase64String(
+            string publicKey, 
+            RSACryptoProvider.PublicKeyFormat format = RSACryptoProvider.PublicKeyFormat.Pkcs1)
+        {
+            return new RSACryptoProvider.PublicKey(
+              Convert.FromBase64String(publicKey), format
+            );
         }
 
         private static RSACryptoProvider.PublicKey ImportPublicKeyLines(string[] lines)

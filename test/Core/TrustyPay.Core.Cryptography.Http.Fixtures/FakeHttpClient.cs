@@ -23,7 +23,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
 
         protected override Exception GetResponseError(IReadOnlyDictionary<string, object> body)
         {
-            return new Exception(body["response_biz_content"].ToString());
+            var error = JsonConvert.DeserializeObject<ResponseBizContent>(
+                body["response_biz_content"].ToString());
+            return new Exception(error.ReturnMsg);
         }
 
         protected override Dictionary<string, object> InitializeRequestBody<T>(
@@ -79,13 +81,13 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
             {
                 if (string.IsNullOrEmpty(kv.Key)
                     || kv.Value == null
-                    || kv.Key != "sign")
+                    || kv.Key == "sign")
                 {
                     continue;
                 }
-                buffer.Append($"{kv.Key}={kv.Value}&");
+                buffer.Append($"{kv.Value}");
             }
-            var text = buffer.ToString(0, buffer.Length - 1).FromUTF8String();
+            var text = buffer.ToString().FromASCIIString();
             return Signer.VerifyBase64Signature(text,
                 body["sign"].ToString(),
                 HashAlgorithmName.SHA256);
