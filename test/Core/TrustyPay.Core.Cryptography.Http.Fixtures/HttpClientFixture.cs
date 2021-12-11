@@ -64,6 +64,40 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
         }
 
         [Fact]
+        public async Task ShouldBeValidUrl()
+        {
+            using var httpTest = new HttpTest();
+            httpTest.RespondWithJson(new Dictionary<string, object>
+            {
+                {
+                    "response_biz_content", @"{
+                        ""return_code"": ""0"", 
+                        ""return_msg"": ""OK"",
+                        ""status"": ""1"",
+                        ""sumPayamt"": ""100"",
+                        ""payeeList"": [
+                        {
+                            ""payAmount"": ""100"",
+                            ""payeeCompanyName"": ""SHQY024"",
+                            ""payeeAccno"": ""1234562019212019112"",
+                            ""payeeAddress"":""shoukaufna"",
+                            ""payeeOrgcode"": ""0000000008""
+                        }]
+                    }"
+                },
+                { "sign", "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"}
+            });
+
+            IHttpClient client = new FakeHttpClient(null, "abcd1234");
+            var bizContent = await client.GetAsync<OrderCriteria, ResponseBizContent>(
+            "http://localhost:5000/api/v1/orders", new OrderCriteria
+            {
+                OrderCode = "2021021501",
+            }, null);
+            Assert.Equal("0", bizContent.ReturnCode);
+        }
+
+        [Fact]
         public async Task ShouldGetOneError()
         {
             using var httpTest = new HttpTest();
