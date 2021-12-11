@@ -23,6 +23,28 @@ namespace TrustyPay.Core.Cryptography.SDK
         }
 
         /// <summary>
+        /// key constants
+        /// </summary>
+        public class Constants
+        {
+            public const string AppId = "appId";
+
+            public const string AppKey = "apiKey";
+
+            public const string BizContent = "bizContent";
+
+            public const string Charset = "charset";
+
+            public const string SignType = "signType";
+
+            public const string Sign = "sign";
+
+            public const string Timestamp = "timestamp";
+
+            public const string Result = "result";
+        }
+
+        /// <summary>
         /// Api base url
         /// </summary>
         private readonly string _apiBaseUrl;
@@ -62,7 +84,7 @@ namespace TrustyPay.Core.Cryptography.SDK
         /// <param name="charset">default charset</param>
         /// <param name="hasTimestamp"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DefaultHttpClient(string apiBaseUrl, string appId, string apiKey, 
+        public DefaultHttpClient(string apiBaseUrl, string appId, string apiKey,
             SignType signType = SignType.RS256, string charset = "utf-8", bool hasTimestamp = true)
         {
             _appId = appId ?? throw new ArgumentNullException(nameof(appId));
@@ -75,34 +97,70 @@ namespace TrustyPay.Core.Cryptography.SDK
 
         protected override U GetResponseBizContent<U>(IReadOnlyDictionary<string, object> body)
         {
-            if (!body.ContainsKey("result"))
+            if (!body.ContainsKey(Constants.Result))
             {
                 throw new ArgumentException("No any result!!!", nameof(body));
             }
-            return JsonConvert.DeserializeObject<U>(body["result"].ToString());
+
+            var value = body[Constants.Result];
+            if (value == null)
+            {
+                return default(U);
+            }
+
+            if (IsPrimitiveType<U>())
+            {
+                return (U)value;
+            }
+
+            return JsonConvert.DeserializeObject<U>(value.ToString());
         }
 
         protected override Exception GetResponseError(IReadOnlyDictionary<string, object> body)
         {
-            var error = JsonConvert.DeserializeObject<ResponseBizContent>(
-                body["result"].ToString());
-            return new Exception(error.ReturnMsg);
+            if (!body.ContainsKey(Constants.Result))
+            {
+                throw new ArgumentException("No any result!!!", nameof(body));
+            }
+
+            var value = body[Constants.Result];
+            if (value == null)
+            {
+                return new ArgumentException("The response error is null!");
+            }
+
+            ResponseError error = null;
+            try
+            {
+                error = JsonConvert.DeserializeObject<ResponseError>(value.ToString());
+            }
+            catch (JsonSerializationException ex)
+            {
+                return ex;
+            }
+
+            if (error == null)
+            {
+                throw new ArgumentException("The result doesn't contain any property called 'message'!", nameof(body));
+            }
+
+            return new Exception(error.Message);
         }
 
         protected override Dictionary<string, object> InitializeRequestBody<T>(T bizContent, IReadOnlyDictionary<string, object> extra = null)
         {
             var body = new Dictionary<string, object>
             {
-                {"appId", _appId},
-                {"apiKey", _apiKey},
-                {"charset", _charset},
-                {"bizContent", IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
-                {"signType", _signType}
+                {Constants.AppId, _appId},
+                {Constants.AppKey, _apiKey},
+                {Constants.Charset, _charset},
+                {Constants.BizContent, IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
+                {Constants.SignType, _signType}
             };
 
             if (_hasTimestamp)
             {
-                body.Add("timestamp", DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                body.Add(Constants.Timestamp, DateTimeOffset.Now.ToUnixTimeMilliseconds());
             }
 
             if (extra != null)
@@ -131,7 +189,7 @@ namespace TrustyPay.Core.Cryptography.SDK
             {
                 if (string.IsNullOrEmpty(kv.Key)
                     || kv.Value == null
-                    || kv.Key == "sign")
+                    || kv.Key == Constants.Sign)
                 {
                     continue;
                 }
@@ -139,13 +197,13 @@ namespace TrustyPay.Core.Cryptography.SDK
             }
 
             var plainBytes = buffer.ToString(0, buffer.Length - 1).FromCharsetString(
-                body.ContainsKey("charset") ? body["charset"].ToString() : _charset);
-            body["sign"] = Signer.Sign(plainBytes, GetHashAlgorithmName((SignType)body["signType"])).ToBase64String();
+                body.ContainsKey(Constants.Charset) ? body[Constants.Charset].ToString() : _charset);
+            body[Constants.Sign] = Signer.Sign(plainBytes, GetHashAlgorithmName((SignType)body[Constants.SignType])).ToBase64String();
         }
 
         protected override bool Verify(IReadOnlyDictionary<string, object> body)
         {
-            if (body.ContainsKey("sign"))
+            if (body.ContainsKey(Constants.Sign))
             {
                 throw new MissingSignatureException();
             }
@@ -155,7 +213,7 @@ namespace TrustyPay.Core.Cryptography.SDK
             {
                 if (string.IsNullOrEmpty(kv.Key)
                     || kv.Value == null
-                    || kv.Key == "sign")
+                    || kv.Key == Constants.Sign)
                 {
                     continue;
                 }
@@ -163,11 +221,11 @@ namespace TrustyPay.Core.Cryptography.SDK
             }
 
             var plainBytes = buffer.ToString(0, buffer.Length - 1).FromCharsetString(
-                body.ContainsKey("charset") ? body["charset"].ToString() : _charset);
+                body.ContainsKey(Constants.Charset) ? body[Constants.Charset].ToString() : _charset);
             return Signer.Verify(
-                plainBytes, 
-                body["sign"].ToString().FromBase64String(),
-                GetHashAlgorithmName((SignType)body["signType"]));
+                plainBytes,
+                body[Constants.Sign].ToString().FromBase64String(),
+                GetHashAlgorithmName((SignType)body[Constants.SignType]));
         }
 
         /// <summary>
