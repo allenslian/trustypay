@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Flurl.Http.Testing;
-using Newtonsoft.Json;
 using System.Security.Cryptography;
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 {
     public class HttpClientFixture
     {

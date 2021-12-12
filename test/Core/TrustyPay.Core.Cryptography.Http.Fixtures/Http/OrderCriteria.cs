@@ -1,7 +1,7 @@
 
 using Newtonsoft.Json;
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 {
     internal class OrderCriteria
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 {
     internal class OrderResult : ResponseBizContent
     {
@@ -32,5 +32,5 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
             [JsonProperty("payeeOrgcode")]
             public string OrgCode { get; set; }
         }
-    } 
+    }
 }

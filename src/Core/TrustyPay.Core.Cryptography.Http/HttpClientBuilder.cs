@@ -12,12 +12,6 @@ namespace TrustyPay.Core.Cryptography.Http
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public HttpClientBuilder<T> AddApiBaseUrl(string apiBaseUrl)
-        {
-            _client.ApiBaseUrl = apiBaseUrl;
-            return this;
-        }
-
         public HttpClientBuilder<T> WithSigner(ISignatureProvider provider)
         {
             _client.Signer = provider;
@@ -31,9 +25,9 @@ namespace TrustyPay.Core.Cryptography.Http
             RSACryptoProvider.KeySizes keySize = RSACryptoProvider.KeySizes.RSA2048)
         {
             _client.Signer = new RSACryptoProvider(
-                privateKey, 
-                publicKey, 
-                padding, 
+                privateKey,
+                publicKey,
+                padding,
                 keySize);
             return this;
         }
@@ -45,9 +39,9 @@ namespace TrustyPay.Core.Cryptography.Http
             RSACryptoProvider.KeySizes keySize = RSACryptoProvider.KeySizes.RSA2048)
         {
             _client.Signer = new RSACryptoProvider(
-                RSAKeyFactory.ImportPrivateKeyFromBase64String(privateKey.Item1, privateKey.Item2), 
-                RSAKeyFactory.ImportPublicKeyFromBase64String(publicKey.Item1, publicKey.Item2), 
-                padding, 
+                RSAKeyFactory.ImportPrivateKeyFromBase64String(privateKey.Item1, privateKey.Item2),
+                RSAKeyFactory.ImportPublicKeyFromBase64String(publicKey.Item1, publicKey.Item2),
+                padding,
                 keySize);
             return this;
         }

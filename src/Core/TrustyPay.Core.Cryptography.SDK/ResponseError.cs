@@ -5,7 +5,7 @@ namespace TrustyPay.Core.Cryptography.SDK
 {
     internal class ResponseError
     {
-        [JsonProperty("message")]
-        public string Message { get; }
+        [JsonProperty("message", Required = Required.Always)]
+        public string Message { get; set; }
     }
 }

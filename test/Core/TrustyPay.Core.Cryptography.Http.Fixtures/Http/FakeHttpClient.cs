@@ -4,15 +4,14 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 {
     public sealed class FakeHttpClient : HttpClientBase
     {
         private readonly string _apiKey;
 
-        public FakeHttpClient(string apiBaseUrl, string apiKey)
+        public FakeHttpClient(string apiBaseUrl, string apiKey) : base(apiBaseUrl)
         {
-            ApiBaseUrl = apiBaseUrl;
             _apiKey = apiKey;
         }
 
@@ -74,7 +73,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures
             body.Add("sign", Signer.Sign(text.FromUTF8String(), HashAlgorithmName.SHA256).ToBase64String());
         }
 
-        protected override bool Verify(IReadOnlyDictionary<string, object> body)
+        protected override bool Verify(string url, IReadOnlyDictionary<string, object> body)
         {
             var buffer = new StringBuilder();
             foreach (var kv in body)

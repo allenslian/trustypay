@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
-using TrustyPay.Core.Cryptography;
 using TrustyPay.Core.Cryptography.Http;
 
 namespace TrustyPay.Core.Cryptography.SDK
@@ -15,11 +15,11 @@ namespace TrustyPay.Core.Cryptography.SDK
     {
         public enum SignType
         {
-            RS256 = 256,
+            RS256 = 1,
 
-            RS384 = 384,
+            RS384 = 2,
 
-            RS512 = 512
+            RS512 = 3
         }
 
         /// <summary>
@@ -43,11 +43,6 @@ namespace TrustyPay.Core.Cryptography.SDK
 
             public const string Result = "result";
         }
-
-        /// <summary>
-        /// Api base url
-        /// </summary>
-        private readonly string _apiBaseUrl;
 
         /// <summary>
         /// App id
@@ -85,11 +80,10 @@ namespace TrustyPay.Core.Cryptography.SDK
         /// <param name="hasTimestamp"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public DefaultHttpClient(string apiBaseUrl, string appId, string apiKey,
-            SignType signType = SignType.RS256, string charset = "utf-8", bool hasTimestamp = true)
+            SignType signType = SignType.RS256, string charset = "utf-8", bool hasTimestamp = true) : base(apiBaseUrl)
         {
             _appId = appId ?? throw new ArgumentNullException(nameof(appId));
             _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
-            _apiBaseUrl = apiBaseUrl;
             _signType = signType;
             _charset = charset;
             _hasTimestamp = hasTimestamp;
@@ -120,13 +114,13 @@ namespace TrustyPay.Core.Cryptography.SDK
         {
             if (!body.ContainsKey(Constants.Result))
             {
-                throw new ArgumentException("No any result!!!", nameof(body));
+                throw new ArgumentException("No any result in the response body!!!");
             }
 
             var value = body[Constants.Result];
             if (value == null)
             {
-                return new ArgumentException("The response error is null!");
+                return new ArgumentException("The error in the response body is null!");
             }
 
             ResponseError error = null;
@@ -136,12 +130,7 @@ namespace TrustyPay.Core.Cryptography.SDK
             }
             catch (JsonSerializationException ex)
             {
-                return ex;
-            }
-
-            if (error == null)
-            {
-                throw new ArgumentException("The result doesn't contain any property called 'message'!", nameof(body));
+                throw new ArgumentException("The result doesn't contain any property called 'message'!", ex);
             }
 
             return new Exception(error.Message);
@@ -155,12 +144,16 @@ namespace TrustyPay.Core.Cryptography.SDK
                 {Constants.AppKey, _apiKey},
                 {Constants.Charset, _charset},
                 {Constants.BizContent, IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
-                {Constants.SignType, _signType}
             };
 
             if (_hasTimestamp)
             {
                 body.Add(Constants.Timestamp, DateTimeOffset.Now.ToUnixTimeMilliseconds());
+            }
+
+            if (Signer != null)
+            {
+                body.Add(Constants.SignType, _signType);
             }
 
             if (extra != null)
@@ -185,39 +178,45 @@ namespace TrustyPay.Core.Cryptography.SDK
             {
                 buffer.Append('?');
             }
-            foreach (var kv in body)
+            foreach (var k in body.Keys.OrderBy(m => m))
             {
-                if (string.IsNullOrEmpty(kv.Key)
-                    || kv.Value == null
-                    || kv.Key == Constants.Sign)
+                var v = body[k];
+                if (string.IsNullOrEmpty(k)
+                    || v == null
+                    || k == Constants.Sign)
                 {
                     continue;
                 }
-                buffer.Append($"{kv.Key}={kv.Value}&");
+                buffer.Append($"{k}={v}&");
             }
 
             var plainBytes = buffer.ToString(0, buffer.Length - 1).FromCharsetString(
                 body.ContainsKey(Constants.Charset) ? body[Constants.Charset].ToString() : _charset);
-            body[Constants.Sign] = Signer.Sign(plainBytes, GetHashAlgorithmName((SignType)body[Constants.SignType])).ToBase64String();
+            body[Constants.Sign] = Signer.Sign(plainBytes, GetHashAlgorithmName(body)).ToBase64String();
         }
 
-        protected override bool Verify(IReadOnlyDictionary<string, object> body)
+        protected override bool Verify(string url, IReadOnlyDictionary<string, object> body)
         {
-            if (body.ContainsKey(Constants.Sign))
+            if (!body.ContainsKey(Constants.Sign))
             {
                 throw new MissingSignatureException();
             }
 
-            var buffer = new StringBuilder();
-            foreach (var kv in body)
+            var buffer = new StringBuilder(url);
+            if (!url.Contains('?'))
             {
-                if (string.IsNullOrEmpty(kv.Key)
-                    || kv.Value == null
-                    || kv.Key == Constants.Sign)
+                buffer.Append('?');
+            }
+            foreach (var k in body.Keys.OrderBy(m => m))
+            {
+                var v = body[k];
+                if (string.IsNullOrEmpty(k)
+                    || v == null
+                    || k == Constants.Sign)
                 {
                     continue;
                 }
-                buffer.Append($"{kv.Key}={kv.Value}&");
+                buffer.Append($"{k}={v}&");
             }
 
             var plainBytes = buffer.ToString(0, buffer.Length - 1).FromCharsetString(
@@ -225,16 +224,23 @@ namespace TrustyPay.Core.Cryptography.SDK
             return Signer.Verify(
                 plainBytes,
                 body[Constants.Sign].ToString().FromBase64String(),
-                GetHashAlgorithmName((SignType)body[Constants.SignType]));
+                GetHashAlgorithmName(body));
         }
 
         /// <summary>
         /// Get hash algorithm name
         /// </summary>
-        /// <param name="type">sign type</param>
+        /// <param name="body">A dictionary</param>
         /// <returns>HashAlgorithmName</returns>
-        private static HashAlgorithmName GetHashAlgorithmName(SignType type)
+        private HashAlgorithmName GetHashAlgorithmName(
+            IReadOnlyDictionary<string, object> body)
         {
+            var type = _signType;
+            if (body.ContainsKey(Constants.SignType))
+            {
+                type = Enum.Parse<SignType>(body[Constants.SignType].ToString());
+            }
+
             return type switch
             {
                 SignType.RS256 => HashAlgorithmName.SHA256,

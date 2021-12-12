@@ -35,11 +35,11 @@ namespace TrustyPay.Core.Cryptography.Http
                 var response = await url.PostJsonAsync(
                     client.GenerateRequestBody(apiUrl, bizContent, extra)
                 );
-                return client.ParseResponseBody<U>(await response.GetStringAsync());
+                return client.ParseResponseBody<U>(apiUrl, await response.GetStringAsync());
             }
             catch (FlurlHttpException ex)
             {
-                throw client.ParseResponseError(await ex.GetResponseStringAsync());
+                throw client.ParseResponseError(apiUrl, await ex.GetResponseStringAsync());
             }
         }
 
@@ -63,17 +63,17 @@ namespace TrustyPay.Core.Cryptography.Http
             }
 
             var url = ConcatenateApiUrl(
-                client.ApiBaseUrl, 
-                apiUrl, 
+                client.ApiBaseUrl,
+                apiUrl,
                 client.GenerateRequestBody(apiUrl, bizContent, extra));
             try
             {
                 var response = await url.GetAsync();
-                return client.ParseResponseBody<U>(await response.GetStringAsync());
+                return client.ParseResponseBody<U>(apiUrl, await response.GetStringAsync());
             }
             catch (FlurlHttpException ex)
             {
-                throw client.ParseResponseError(await ex.GetResponseStringAsync());
+                throw client.ParseResponseError(apiUrl, await ex.GetResponseStringAsync());
             }
         }
 
@@ -103,11 +103,11 @@ namespace TrustyPay.Core.Cryptography.Http
                 var response = await url.PutJsonAsync(
                     client.GenerateRequestBody(apiUrl, bizContent, extra)
                 );
-                return client.ParseResponseBody<U>(await response.GetStringAsync());
+                return client.ParseResponseBody<U>(apiUrl, await response.GetStringAsync());
             }
             catch (FlurlHttpException ex)
             {
-                throw client.ParseResponseError(await ex.GetResponseStringAsync());
+                throw client.ParseResponseError(apiUrl, await ex.GetResponseStringAsync());
             }
         }
 
@@ -131,17 +131,17 @@ namespace TrustyPay.Core.Cryptography.Http
             }
 
             var url = ConcatenateApiUrl(
-                client.ApiBaseUrl, 
-                apiUrl, 
+                client.ApiBaseUrl,
+                apiUrl,
                 client.GenerateRequestBody(apiUrl, bizContent, extra));
             try
             {
                 var response = await url.DeleteAsync();
-                return client.ParseResponseBody<U>(await response.GetStringAsync());
+                return client.ParseResponseBody<U>(apiUrl, await response.GetStringAsync());
             }
             catch (FlurlHttpException ex)
             {
-                throw client.ParseResponseError(await ex.GetResponseStringAsync());
+                throw client.ParseResponseError(apiUrl, await ex.GetResponseStringAsync());
             }
         }
 
@@ -154,8 +154,8 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <returns>A absolute api url</returns>
         /// <exception cref="ArgumentException">absolute api url is null</exception>
         private static string ConcatenateApiUrl(
-            string apiBaseUrl, 
-            string apiUrl, 
+            string apiBaseUrl,
+            string apiUrl,
             IReadOnlyDictionary<string, object> body)
         {
             var url = new Flurl.Url(apiBaseUrl)

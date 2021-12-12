@@ -9,10 +9,15 @@ namespace TrustyPay.Core.Cryptography.Http
     /// </summary>
     public abstract class HttpClientBase : IHttpClient
     {
+        protected HttpClientBase(string apiBaseUrl)
+        {
+            ApiBaseUrl = apiBaseUrl;
+        }
+
         /// <summary>
         /// api base url
         /// </summary>
-        public string ApiBaseUrl { get; set; }
+        public string ApiBaseUrl { get; private set; }
 
         /// <summary>
         /// A signature provider
@@ -59,7 +64,7 @@ namespace TrustyPay.Core.Cryptography.Http
 
         #region Response
 
-        public U ParseResponseBody<U>(string content)
+        public U ParseResponseBody<U>(string apiUrl, string content)
         {
             var body = LoadResponseBody(content);
             if (body == null)
@@ -74,7 +79,7 @@ namespace TrustyPay.Core.Cryptography.Http
                     throw new MissingSignatureException();
                 }
 
-                if (!Verify(body))
+                if (!Verify(apiUrl, body))
                 {
                     throw new InvalidSignatureException();
                 }
@@ -93,9 +98,10 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <summary>
         /// Verify response body signature
         /// </summary>
+        /// <param name="url">api url</param>
         /// <param name="body">response body map</param>
         /// <returns>true is passed</returns>
-        protected abstract bool Verify(IReadOnlyDictionary<string, object> body);
+        protected abstract bool Verify(string url, IReadOnlyDictionary<string, object> body);
 
         /// <summary>
         /// Get response biz content
@@ -105,7 +111,7 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <returns>A response biz content class</returns>
         protected abstract U GetResponseBizContent<U>(IReadOnlyDictionary<string, object> body);
 
-        public Exception ParseResponseError(string content)
+        public Exception ParseResponseError(string apiUrl, string content)
         {
             var body = LoadResponseBody(content);
             if (body == null)
@@ -120,7 +126,7 @@ namespace TrustyPay.Core.Cryptography.Http
                     throw new MissingSignatureException();
                 }
 
-                if (!Verify(body))
+                if (!Verify(apiUrl, body))
                 {
                     throw new InvalidSignatureException();
                 }

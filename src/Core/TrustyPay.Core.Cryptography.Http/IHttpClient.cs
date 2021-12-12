@@ -25,15 +25,17 @@ namespace TrustyPay.Core.Cryptography.Http
         /// <summary>
         /// Parse http response body
         /// </summary>
+        /// <param name="apiUrl">request api url</param>
         /// <param name="content">response content</param>
         /// <returns>A response biz content class</returns>
-        U ParseResponseBody<U>(string content);
+        U ParseResponseBody<U>(string apiUrl, string content);
 
         /// <summary>
         /// Parse http response error
         /// </summary>
+        /// <param name="apiUrl">request api url</param>
         /// <param name="content">response content</param>
         /// <returns>An exception</returns>
-        Exception ParseResponseError(string content);
+        Exception ParseResponseError(string apiUrl, string content);
     }
 }

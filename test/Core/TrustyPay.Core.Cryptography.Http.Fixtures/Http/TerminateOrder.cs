@@ -1,13 +1,13 @@
 using Newtonsoft.Json;
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 {
     internal class TerminateOrder
     {
         public string Code { get; set; }
     }
 
-    internal class TernimateOrderResult  : ResponseBizContent
+    internal class TernimateOrderResult : ResponseBizContent
     {
         [JsonProperty("trxTimestamp")]
         public string Timestamp { get; set; }
