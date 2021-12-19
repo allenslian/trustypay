@@ -58,6 +58,39 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
             {
                 Code = "01",
                 TotalAmount = "20.00",
+                Payer = null,
+                PayerBankAccount = ""
+            };
+            quotation.Items = new string[] {
+                "1|bill|87654321|12.00",
+                "2|world|87654322|8.00"
+            };
+            quotation.ItemWithoutEncryption = new Quotation.QuotationItem();
+
+            quotation.Encrypt();
+
+            Assert.Equal("01", quotation.Code);
+            Assert.Equal("DddQjA+a5pSPhYM9NROUog==", quotation.TotalAmount);
+            Assert.Null(quotation.Payer);
+            Assert.Equal("", quotation.PayerBankAccount);
+            Assert.Equal("n7I5b9TB1t+3ztIz0qudGI0RN/y9X2YT0e/Bh89ZEqM=", quotation.Items[0]);
+            Assert.Equal("NLzLajeXT7FKq9YntxsCxFRB3ZdqiYagOVxvdVy7NpA=", quotation.Items[1]);
+
+            quotation.Decrypt();
+            Assert.Equal("20.00", quotation.TotalAmount);
+            Assert.Null(quotation.Payer);
+            Assert.Equal("", quotation.PayerBankAccount);
+            Assert.Equal("1|bill|87654321|12.00", quotation.Items[0]);
+            Assert.Equal("2|world|87654322|8.00", quotation.Items[1]);
+        }
+
+        [Fact]
+        public void DonotEncryptPlainQuotation()
+        {
+            var quotation = new PlainQuotation
+            {
+                Code = "01",
+                TotalAmount = "20.00",
                 Payer = "allen",
                 PayerBankAccount = "12345678"
             };
@@ -69,9 +102,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
             quotation.Encrypt();
 
             Assert.Equal("01", quotation.Code);
-            Assert.Equal("DddQjA+a5pSPhYM9NROUog==", quotation.TotalAmount);
-            Assert.Equal("n7I5b9TB1t+3ztIz0qudGI0RN/y9X2YT0e/Bh89ZEqM=", quotation.Items[0]);
-            Assert.Equal("NLzLajeXT7FKq9YntxsCxFRB3ZdqiYagOVxvdVy7NpA=", quotation.Items[1]);
+            Assert.Equal("20.00", quotation.TotalAmount);
+            Assert.Equal("1|bill|87654321|12.00", quotation.Items[0]);
+            Assert.Equal("2|world|87654322|8.00", quotation.Items[1]);
 
             quotation.Decrypt();
             Assert.Equal("20.00", quotation.TotalAmount);

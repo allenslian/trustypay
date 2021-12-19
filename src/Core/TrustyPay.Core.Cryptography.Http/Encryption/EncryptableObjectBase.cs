@@ -8,7 +8,7 @@ namespace TrustyPay.Core.Cryptography.Http
         protected abstract IEncryptionProvider Encryptor { get; set; }
 
         /// <inheritdoc />
-        public virtual void Encrypt(string charset = "utf-8")
+        public void Encrypt(string charset = "utf-8")
         {
             if (Encryptor == null)
             {
@@ -19,13 +19,7 @@ namespace TrustyPay.Core.Cryptography.Http
             foreach (var p in props)
             {
                 var attributes = p.GetCustomAttributes(typeof(EncryptableAttribute), false);
-                if (attributes == null || attributes.Length == 0)
-                {
-                    continue;
-                }
-
-                var encryptable = attributes[0] as EncryptableAttribute;
-                if (encryptable == null)
+                if (attributes.Length == 0)
                 {
                     continue;
                 }
@@ -34,7 +28,7 @@ namespace TrustyPay.Core.Cryptography.Http
             }
         }
 
-        private void EncryptInternal(PropertyInfo p, object self, string charset)
+        protected void EncryptInternal(PropertyInfo p, object self, string charset)
         {
             var v = p.GetValue(self);
             if (v == null)
@@ -55,15 +49,15 @@ namespace TrustyPay.Core.Cryptography.Http
             }
         }
 
-        private object GetValueEncrypted(object v, string charset)
+        protected virtual object GetValueEncrypted(object v, string charset)
         {
             if (v is string s)
             {
-                if (Encryptor != null)
+                if (s != string.Empty)
                 {
                     return Encryptor.EncryptToBase64String(s.FromCharsetString(charset));
                 }
-                return v;
+                return s;
             }
             else if (v is IEncryptableObject o)
             {
@@ -74,7 +68,8 @@ namespace TrustyPay.Core.Cryptography.Http
             return v;
         }
 
-        public virtual void Decrypt(string charset = "utf-8")
+        /// <inheritdoc />
+        public void Decrypt(string charset = "utf-8")
         {
             if (Encryptor == null)
             {
@@ -85,13 +80,7 @@ namespace TrustyPay.Core.Cryptography.Http
             foreach (var p in props)
             {
                 var attributes = p.GetCustomAttributes(typeof(EncryptableAttribute), false);
-                if (attributes == null || attributes.Length == 0)
-                {
-                    continue;
-                }
-
-                var encryptable = attributes[0] as EncryptableAttribute;
-                if (encryptable == null)
+                if (attributes.Length == 0)
                 {
                     continue;
                 }
@@ -100,7 +89,7 @@ namespace TrustyPay.Core.Cryptography.Http
             }
         }
 
-        protected virtual void DecryptInternal(PropertyInfo p, object self, string charset)
+        protected void DecryptInternal(PropertyInfo p, object self, string charset)
         {
             var v = p.GetValue(self);
             if (v == null)
@@ -125,11 +114,11 @@ namespace TrustyPay.Core.Cryptography.Http
         {
             if (v is string s)
             {
-                if (Encryptor != null)
+                if (s != string.Empty)
                 {
                     return Encryptor.DecryptFromBase64String(s).ToCharsetString(charset);
                 }
-                return v;
+                return s;
             }
             else if (v is IDecryptableObject o)
             {
