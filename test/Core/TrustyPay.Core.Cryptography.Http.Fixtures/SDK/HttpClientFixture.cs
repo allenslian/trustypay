@@ -287,7 +287,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.SDK
                 catch (Exception ex)
                 {
                     Assert.Equal("Not found the order!", ex.Message);
-                    throw ex;
+                    throw;
                 }
             });
         }
@@ -326,7 +326,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.SDK
                 catch (ArgumentException ex)
                 {
                     Assert.Equal("No any result in the response body!!!", ex.Message);
-                    throw ex;
+                    throw;
                 }
             });
         }
@@ -368,7 +368,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.SDK
                 catch (ArgumentException ex)
                 {
                     Assert.Equal("The error in the response body is null!", ex.Message);
-                    throw ex;
+                    throw;
                 }
             });
         }
@@ -410,7 +410,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.SDK
                 catch (ArgumentException ex)
                 {
                     Assert.Equal("The result doesn't contain any property called 'message'!", ex.Message);
-                    throw ex;
+                    throw;
                 }
             });
         }
