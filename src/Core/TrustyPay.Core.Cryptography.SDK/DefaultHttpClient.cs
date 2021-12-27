@@ -143,7 +143,7 @@ namespace TrustyPay.Core.Cryptography.SDK
                 {Constants.AppId, _appId},
                 {Constants.AppKey, _apiKey},
                 {Constants.Charset, _charset},
-                {Constants.BizContent, IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent)},
+                {Constants.BizContent, IsPrimitiveType<T>() ? bizContent : JsonConvert.SerializeObject(bizContent, Formatting.None)},
             };
 
             if (_hasTimestamp)
