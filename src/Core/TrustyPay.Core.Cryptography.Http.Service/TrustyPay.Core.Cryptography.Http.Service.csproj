@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Flurl.Http" Version="3.2.0" />
+    
+    <PackageReference Include="microsoft.extensions.logging" Version="5.0.0" />
+    
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrustyPay.Core.Cryptography\TrustyPay.Core.Cryptography.csproj" />
+    <ProjectReference Include="..\TrustyPay.Core.Cryptography.Http\TrustyPay.Core.Cryptography.Http.csproj" />
+  </ItemGroup>
+
+</Project>

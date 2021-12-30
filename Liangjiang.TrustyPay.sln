@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrustyPay.Core.Cryptography
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrustyPay.Core.Cryptography.Http", "src\Core\TrustyPay.Core.Cryptography.Http\TrustyPay.Core.Cryptography.Http.csproj", "{EDD76150-2636-45C1-9A68-75F1C2B4BF66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrustyPay.Core.Cryptography.Http.Service", "src\Core\TrustyPay.Core.Cryptography.Http.Service\TrustyPay.Core.Cryptography.Http.Service.csproj", "{70551AE6-D393-46B4-8297-492CE90E7EA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,6 +172,18 @@ Global
 		{EDD76150-2636-45C1-9A68-75F1C2B4BF66}.Release|x64.Build.0 = Release|Any CPU
 		{EDD76150-2636-45C1-9A68-75F1C2B4BF66}.Release|x86.ActiveCfg = Release|Any CPU
 		{EDD76150-2636-45C1-9A68-75F1C2B4BF66}.Release|x86.Build.0 = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|x64.Build.0 = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Debug|x86.Build.0 = Debug|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|x64.ActiveCfg = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|x64.Build.0 = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|x86.ActiveCfg = Release|Any CPU
+		{70551AE6-D393-46B4-8297-492CE90E7EA0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{799E3E24-5F99-4B43-B598-F14D4C9366CE} = {0154D374-00E9-40CD-873C-6BE20AE38233}
@@ -187,5 +201,6 @@ Global
 		{85218E8E-A54B-4A43-9F2F-274651D7E827} = {2633271A-0E8D-46AD-A9C7-0D4DEB2707FD}
 		{25B27575-04D3-4918-A412-04D76D2041B5} = {84570E07-62E4-46C3-99E6-AE68CA58F383}
 		{EDD76150-2636-45C1-9A68-75F1C2B4BF66} = {A45521BD-90C4-47DC-B925-3A34C78EC5DE}
+		{70551AE6-D393-46B4-8297-492CE90E7EA0} = {A45521BD-90C4-47DC-B925-3A34C78EC5DE}
 	EndGlobalSection
 EndGlobal

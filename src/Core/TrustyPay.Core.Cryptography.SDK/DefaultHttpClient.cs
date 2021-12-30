@@ -99,7 +99,7 @@ namespace TrustyPay.Core.Cryptography.SDK
             var value = body[Constants.Result];
             if (value == null)
             {
-                return default(U);
+                return default;
             }
 
             if (IsPrimitiveType<U>())
@@ -123,7 +123,7 @@ namespace TrustyPay.Core.Cryptography.SDK
                 return new ArgumentException("The error in the response body is null!");
             }
 
-            ResponseError error = null;
+            ResponseError error;
             try
             {
                 error = JsonConvert.DeserializeObject<ResponseError>(value.ToString());
