@@ -8,17 +8,8 @@ using Newtonsoft.Json.Linq;
 
 namespace TrustyPay.Core.Cryptography.Http.Service
 {
-    public class ServiceSigner
+    internal class ServiceSigner
     {
-        private readonly ISignatureProvider _signer;
-
-        public ServiceSigner(
-            ISignatureProvider signer
-        )
-        {
-            _signer = signer ?? throw new ArgumentNullException(nameof(signer));
-        }
-
         /// <summary>
         /// Verify the signature from the request body
         /// </summary>
@@ -28,23 +19,19 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         /// <exception cref="ArgumentNullException">body is null</exception>
         /// <exception cref="MissingSignatureException">missing the signature in the request body</exception>
         /// <exception cref="InvalidSignatureException">the signature in the request body is not valid!!!</exception>
-        public static void VerifyRequestBody(RSACryptoProvider.PublicKey publicKey, 
+        public static void VerifyRequestBody(
+            RSACryptoProvider.PublicKey publicKey,
             string url, Dictionary<string, JToken> body)
         {
-            if (body == null)
-            {
-                throw new ArgumentNullException(nameof(body));
-            }
+            // if (body == null)
+            // {
+            //     throw new ArgumentNullException(nameof(body));
+            // }
 
-            if (!body.ContainsKey("sign")
-            || string.IsNullOrWhiteSpace(body["sign"].Value<string>()))
-            {
-                throw new MissingSignatureException();
-            }
             var signature = body["sign"].Value<string>();
 
             var charset = "utf-8";
-            if (body.ContainsKey("charset") 
+            if (body.ContainsKey("charset")
             && !string.IsNullOrWhiteSpace(body["charset"].Value<string>()))
             {
                 charset = body["charset"].Value<string>();
@@ -61,26 +48,27 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
         }
 
-        
-        public static Dictionary<string, JToken> SignResponseBody(RSACryptoProvider.PrivateKey privateKey,
-            string url, object bizContent)
+
+        public static Dictionary<string, JToken> SignResponseBody(
+            RSACryptoProvider.PrivateKey privateKey,
+            string url, JToken bizContent)
         {
-            if (bizContent == null)
-            {
-                throw new ArgumentNullException(nameof(bizContent));
-            }
+            // if (bizContent == null)
+            // {
+            //     throw new ArgumentNullException(nameof(bizContent));
+            // }
 
             var body = new Dictionary<string, JToken>
             {
                 {"charset", "utf-8"},
-                {"bizContent", JsonConvert.SerializeObject(bizContent, Formatting.None)},
+                {"result", IsPrimitiveType(bizContent) ? bizContent : JsonConvert.SerializeObject(bizContent, Formatting.None)},
                 {"timestamp", DateTimeOffset.Now.ToUnixTimeMilliseconds()},
                 {"signType", SignType.RS256.ToString()}
             };
 
             var plainBytes = GetStringForSign(url, body)
                 .FromUTF8String();
-            
+
             var signer = new RSACryptoProvider(privateKey, null, RSASignaturePadding.Pkcs1);
             body.Add("sign", signer.SignToBase64String(plainBytes, SignType.RS256.ToHashAlgorithmName()));
             return body;
@@ -101,6 +89,8 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 var v = body[k];
                 if (string.IsNullOrEmpty(k)
                     || v == null
+                    || v.ToString() == string.Empty
+                    || v.ToString().Equals("null", StringComparison.CurrentCultureIgnoreCase)
                     || k == "sign")
                 {
                     continue;
@@ -124,6 +114,20 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 signType = Enum.Parse<SignType>(body["signType"].Value<string>());
             }
             return signType.ToHashAlgorithmName();
+        }
+
+        /// <summary>
+        /// Whether biz content type is primitive type?
+        /// </summary>
+        /// <typeparam name="T">biz Content class</typeparam>
+        /// <returns>true/false</returns>
+        private static bool IsPrimitiveType(JToken token)
+        {
+            if (token == null)
+            {
+                return true;
+            }
+            return token.Type != JTokenType.Object && token.Type != JTokenType.Array;
         }
     }
 }

@@ -38,6 +38,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             if (!IsSignatureVerificationRequired(context))
             {
                 await _next.Invoke(context);
+                return;
             }
 
             Dictionary<string, JToken> requestBody;
@@ -45,17 +46,17 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             {
                 requestBody = await ReadRequestBodyAsync(context.Request);
             }
-            catch (NotSupportedException ex1)
+            catch (NotSupportedException se)
             {
-                _logger.LogError(ex1, "ReadRequestBodyAsync Error");
+                _logger.LogError("ReadRequestBodyAsync " + se.Message);
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status400BadRequest,
-                    "不支持的Media Type,目前只支持application/json和application/x-www-form-urlencoded!");
+                    $"{se.Message},目前只支持application/json和application/x-www-form-urlencoded!");
                 return;
             }
-            catch (Exception ex2)
+            catch (Exception ex)
             {
-                _logger.LogError(ex2, "ReadRequestBodyAsync Error");
+                _logger.LogError(ex, "ReadRequestBodyAsync 解析请求参数失败!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status400BadRequest,
                     "解析请求参数失败!");
@@ -68,9 +69,23 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
             catch (MissingAppIdOrApiKeyException)
             {
+                _logger.LogWarning("缺少app id和api key信息!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status400BadRequest,
                     "缺少app id和api key信息!");
+                return;
+            }
+
+            try
+            {
+                EnsureSignature(requestBody);
+            }
+            catch (MissingSignatureException)
+            {
+                _logger.LogWarning("缺少请求签名信息!");
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status400BadRequest,
+                    "缺少请求签名信息!");
                 return;
             }
 
@@ -80,16 +95,6 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 appPublicKey = await _provider.GetAppPublicKeyAsync(
                     requestBody["appId"].ToString(),
                     requestBody["apiKey"].ToString());
-
-                EnsureAppPublicKey(appPublicKey);
-            }
-            catch (InvalidAppPublicKeyException ex4)
-            {
-                _logger.LogError(ex4, "GetAppPublicKeyAsync Error");
-                await WriteResponseErrorAsync(context.Response,
-                    context.Request.Path, StatusCodes.Status401Unauthorized,
-                    "应用方公钥无效!");
-                return;
             }
             catch (Exception ex5)
             {
@@ -105,12 +110,28 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 ServiceSigner.VerifyRequestBody(
                     appPublicKey, context.Request.Path, requestBody);
             }
-            catch (InvalidSignatureException ex6)
+            catch (InvalidPublicKeyFormatException)
             {
-                _logger.LogError(ex6, "VerifyRequestBody Error");
+                _logger.LogError("VerifyRequestBody 应用方公钥无效!");
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status401Unauthorized,
+                    "应用方公钥无效!");
+                return;
+            }
+            catch (InvalidSignatureException)
+            {
+                _logger.LogError("VerifyRequestBody 请求签名验证无效!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status401Unauthorized,
                     "请求签名验证无效!");
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "VerifyRequestBody Error");
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status401Unauthorized,
+                    "请求签名验证无效, 请确认参数是否有效!");
                 return;
             }
 
@@ -121,7 +142,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                     context.Request.Path,
                     context.Request.Method))
                 {
-                    _logger.LogWarning($"{requestBody["apiKey"]} => {context.Request.Method}{context.Request.Path}");
+                    _logger.LogWarning($"{requestBody["apiKey"]} 应用权限不够=>{context.Request.Method}{context.Request.Path}");
                     await WriteResponseErrorAsync(context.Response,
                         context.Request.Path, StatusCodes.Status403Forbidden,
                         "应用权限不够!");
@@ -130,7 +151,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
             catch (Exception ex7)
             {
-                _logger.LogError(ex7, "HasPermissionByApiKeyAsync Error");
+                _logger.LogError(ex7, "HasPermissionByApiKeyAsync 权限验证失败!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status403Forbidden,
                     "权限验证失败!");
@@ -145,9 +166,9 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                         await _next.Invoke(ctx);
                     });
             }
-            catch (Exception ex8)
+            catch (Exception ex)
             {
-                _logger.LogError(ex8, "WriteResponseBodyAsync Error");
+                _logger.LogError(ex, "WriteResponseBodyAsync 响应请求失败!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status500InternalServerError,
                     "响应请求失败!");
@@ -157,13 +178,10 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
         private static bool IsSignatureVerificationRequired(HttpContext context)
         {
-            var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
-            if (endpoint == null)
-            {
-                return false;
-            }
-
-            var attribute = endpoint?.Metadata.GetMetadata<SignatureVerificationAttribute>();
+            var attribute = context.Features?
+                .Get<IEndpointFeature>()?
+                .Endpoint?
+                .Metadata.GetMetadata<SignatureVerificationAttribute>();
             if (attribute == null)
             {
                 return false;
@@ -190,6 +208,11 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
             // Parse request body
             var header = ParseContentType(request.Headers);
+            request.EnableBuffering();
+            if (request.Body.CanSeek)
+            {
+                request.Body.Seek(0, SeekOrigin.Begin);
+            }
             using var reader = new StreamReader(request.Body, header.ToEncoding(), true);
 
             _ = ParseRequestBody(header.MediaType, await reader.ReadToEndAsync())
@@ -210,40 +233,47 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             await handler(response.HttpContext);
 
             response.Headers.Remove("Content-Length");
-            try
+            if (response.Body.CanSeek)
             {
                 response.Body.Seek(0, SeekOrigin.Begin); // move to begin
-                using var reader = new StreamReader(response.Body);
-                var responseBody = ServiceSigner.SignResponseBody(
-                    _provider.GetPlatformPrivateKey(),
-                    url, JToken.Parse(await reader.ReadToEndAsync()));
+            }
 
-                var buffer = JsonConvert.SerializeObject(responseBody, Formatting.None);
-                await original.WriteAsync(Encoding.UTF8.GetBytes(buffer));
-            }
-            finally
-            {
-                response.Body = original;
-            }
+            response.StatusCode = StatusCodes.Status200OK;
+            response.ContentType = "application/json;charset=utf-8";
+
+            using var reader = new StreamReader(response.Body);
+            var responseBody = ServiceSigner.SignResponseBody(
+                _provider.GetPlatformPrivateKey(),
+                url,
+                JToken.Parse(await reader.ReadToEndAsync()));
+
+            var responseBodyWrapped = JsonConvert.SerializeObject(responseBody, Formatting.None).FromUTF8String();
+            response.Headers.ContentLength = responseBodyWrapped == null ? 0 : responseBodyWrapped.Length;
+            await original.WriteAsync(responseBodyWrapped);
+
+            response.Body = original;
+            await response.CompleteAsync();
         }
 
         private async Task WriteResponseErrorAsync(
             HttpResponse response, string url, int statusCode, string error)
         {
+            response.StatusCode = statusCode;
+            response.ContentType = "application/json;charset=utf-8";
             try
             {
-                response.StatusCode = statusCode;
-                response.ContentType = "application/json;charset=utf-8";
-
                 var responseBody = ServiceSigner.SignResponseBody(
                     _provider.GetPlatformPrivateKey(),
                     url,
-                    new { code = statusCode, message = error });
-                await response.WriteAsync(responseBody.ToString());
+                    JToken.FromObject(new { code = statusCode, message = error }));
+
+                await response.WriteAsync(
+                    JsonConvert.SerializeObject(responseBody, Formatting.None));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "WriteResponseErrorAsync Error");
+                return;
             }
             finally
             {
@@ -260,13 +290,12 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
         }
 
-        private static void EnsureAppPublicKey(RSACryptoProvider.PublicKey publicKey)
+        private static void EnsureSignature(Dictionary<string, JToken> body)
         {
-            if (publicKey == null
-            || publicKey.Key == null
-            || publicKey.Key.Length < 1024)
+            if (!body.ContainsKey("sign")
+            || string.IsNullOrWhiteSpace(body["sign"].Value<string>()))
             {
-                throw new InvalidAppPublicKeyException();
+                throw new MissingSignatureException();
             }
         }
 
@@ -316,6 +345,12 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         /// <exception cref="NotSupportedException"></exception>
         private static Dictionary<string, JToken> ParseRequestBody(string mediaType, string body)
         {
+            if (string.IsNullOrWhiteSpace(body))
+            {
+                // When the request method is get or delete, its body is null.
+                return new Dictionary<string, JToken>();
+            }
+
             return mediaType switch
             {
                 "application/json" => JsonConvert.DeserializeObject<Dictionary<string, JToken>>(body),
@@ -340,14 +375,15 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             // reference https://url.spec.whatwg.org/#application/x-www-form-urlencoded
             //
             var parts = body.Split('&');
-            foreach (var item in parts)
+            foreach (var part in parts)
             {
-                if (item == "" || item.Trim() == "")
+                if (part == "" || part.Trim() == "")
                 {
                     continue;
                 }
 
-                var equalIndex = item.IndexOf('=', 0, 1);
+                var item = part.Trim();
+                var equalIndex = item.IndexOf('=', 0);
                 if (equalIndex == -1)
                 {
                     content.Add(Url.Decode(item, true), string.Empty);

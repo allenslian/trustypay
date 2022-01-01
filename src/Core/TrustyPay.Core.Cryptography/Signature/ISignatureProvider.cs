@@ -8,7 +8,7 @@ namespace TrustyPay.Core.Cryptography
     public interface ISignatureProvider
     {
         /// <summary>
-        /// Sign will sign 
+        /// Sign will sign one signature for plain one.
         /// </summary>
         /// <param name="plainBytes">plain byte array for signature</param>
         /// <param name="hashAlgorithm">hash algorithm</param>
@@ -16,7 +16,7 @@ namespace TrustyPay.Core.Cryptography
         byte[] Sign(byte[] plainBytes, HashAlgorithmName hashAlgorithm);
 
         /// <summary>
-        /// Verify will decrypt a cipher text to the plain one.
+        /// Verify will verify the signature
         /// </summary>
         /// <param name="plainBytes">plain byte array for signature</param>
         /// <param name="signatureBytes">signature</param>

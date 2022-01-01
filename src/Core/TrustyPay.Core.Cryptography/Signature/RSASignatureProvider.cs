@@ -138,16 +138,23 @@ namespace TrustyPay.Core.Cryptography
             }
 
             using var rsa = new RSACryptoServiceProvider((int)_keySize);
-            switch (_privateKey.Format)
+            try
             {
-                case PrivateKeyFormat.Pkcs1:
-                    rsa.ImportRSAPrivateKey(_privateKey.Key, out _);
-                    break;
-                case PrivateKeyFormat.Pkcs8:
-                    rsa.ImportPkcs8PrivateKey(_privateKey.Key, out _);
-                    break;
-                default:
-                    throw new NotSupportedException($"The '{_privateKey.Format}' isn't supported yet!");
+                switch (_privateKey.Format)
+                {
+                    case PrivateKeyFormat.Pkcs1:
+                        rsa.ImportRSAPrivateKey(_privateKey.Key, out _);
+                        break;
+                    case PrivateKeyFormat.Pkcs8:
+                        rsa.ImportPkcs8PrivateKey(_privateKey.Key, out _);
+                        break;
+                    default:
+                        throw new NotSupportedException($"The '{_privateKey.Format}' isn't supported yet!");
+                }
+            }
+            catch (CryptographicException)
+            {
+                throw new InvalidPrivateKeyFormatException();
             }
             return rsa.SignData(plainBytes, hashAlgorithm, _signaturePadding);
         }
@@ -165,16 +172,23 @@ namespace TrustyPay.Core.Cryptography
             }
 
             using var rsa = new RSACryptoServiceProvider((int)_keySize);
-            switch (_publicKey.Format)
+            try
             {
-                case PublicKeyFormat.Pkcs1:
-                    rsa.ImportRSAPublicKey(_publicKey.Key, out _);
-                    break;
-                case PublicKeyFormat.X509:
-                    rsa.ImportSubjectPublicKeyInfo(_publicKey.Key, out _);
-                    break;
-                default:
-                    throw new NotSupportedException($"The '{_publicKey.Format}' isn't supported yet!");
+                switch (_publicKey.Format)
+                {
+                    case PublicKeyFormat.Pkcs1:
+                        rsa.ImportRSAPublicKey(_publicKey.Key, out _);
+                        break;
+                    case PublicKeyFormat.X509:
+                        rsa.ImportSubjectPublicKeyInfo(_publicKey.Key, out _);
+                        break;
+                    default:
+                        throw new NotSupportedException($"The '{_publicKey.Format}' isn't supported yet!");
+                }
+            }
+            catch (CryptographicException)
+            {
+                throw new InvalidPublicKeyFormatException();
             }
             return rsa.VerifyData(plainBytes, signatureBytes, hashAlgorithm, _signaturePadding);
         }
