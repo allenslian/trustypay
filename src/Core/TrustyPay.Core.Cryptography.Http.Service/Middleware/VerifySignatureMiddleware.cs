@@ -483,8 +483,8 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             {
                 buffer = mediaType switch
                 {
-                    "application/json" => "{\"bizContent\":\"" + bizContent.ToString() + "\"}",
-                    "application/x-www-form-urlencoded" => "bizContent=" + Url.Encode(bizContent.ToString(), true),
+                    "application/json" => bizContent.ToString(),
+                    "application/x-www-form-urlencoded" => Url.Encode(bizContent.ToString(), true),
                     _ => string.Empty
                 };
             }
