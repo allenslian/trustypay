@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using TrustyPay.Core.Cryptography.Http;
 
-namespace TrustyPay.Core.Cryptography.SDK
+namespace TrustyPay.Core.Cryptography.Http.Client
 {
     /// <summary>
     /// A http client for communicating with TrustyPay web api.

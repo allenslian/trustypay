@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using Xunit;
 using Flurl.Http.Testing;
 
-using TrustyPay.Core.Cryptography.SDK;
+using TrustyPay.Core.Cryptography.Http.Client;
 
 
-namespace TrustyPay.Core.Cryptography.Http.Fixtures.SDK
+namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
 {
     public class HttpClientFixture
     {

@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Core\TrustyPay.Core.Cryptography.Http\TrustyPay.Core.Cryptography.Http.csproj" />
-    <ProjectReference Include="..\..\..\src\Core\TrustyPay.Core.Cryptography.SDK\TrustyPay.Core.Cryptography.SDK.csproj" />
+    <ProjectReference Include="..\..\..\src\Core\TrustyPay.Core.Cryptography.Http.Client\TrustyPay.Core.Cryptography.Http.Client.csproj" />
     <ProjectReference Include="..\..\..\src\Core\TrustyPay.Core.Cryptography.Http.Service\TrustyPay.Core.Cryptography.Http.Service.csproj" />
   </ItemGroup>
 

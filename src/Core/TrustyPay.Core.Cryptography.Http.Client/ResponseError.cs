@@ -1,7 +1,7 @@
 
 using Newtonsoft.Json;
 
-namespace TrustyPay.Core.Cryptography.SDK
+namespace TrustyPay.Core.Cryptography.Http.Client
 {
     internal class ResponseError
     {
