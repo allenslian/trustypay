@@ -22,6 +22,8 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
         private readonly RequestDelegate _next;
 
+        private Header _header;
+
         public VerifySignatureMiddleware(
             RequestDelegate next,
             IResourceProvider provider,
@@ -160,6 +162,35 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
             try
             {
+                InjectBizContent(context.Request, requestBody);
+            }
+            catch (NotSupportedException se)
+            {
+                _logger.LogError("InjectBizContent " + se.Message);
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status400BadRequest,
+                    se.Message);
+                return;
+            }
+            catch (ArgumentException ae)
+            {
+                _logger.LogError("InjectBizContent " + ae.Message);
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status400BadRequest,
+                    ae.Message);
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "InjectBizContent 解析bizContent失败!");
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status400BadRequest,
+                    "解析bizContent失败!");
+                return;
+            }
+
+            try
+            {
                 await WriteResponseBodyAsync(context.Response, context.Request.Path,
                     async ctx =>
                     {
@@ -194,7 +225,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         /// </summary>
         /// <param name="request">request</param>
         /// <returns>Dictionary&lt;string, JToken&gt;</returns>
-        private static async Task<Dictionary<string, JToken>> ReadRequestBodyAsync(HttpRequest request)
+        private async Task<Dictionary<string, JToken>> ReadRequestBodyAsync(HttpRequest request)
         {
             var content = new Dictionary<string, JToken>(10);
             // Parse query parameters
@@ -207,15 +238,14 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
 
             // Parse request body
-            var header = ParseContentType(request.Headers);
-            request.EnableBuffering();
+            _header = ParseContentType(request.Headers);
             if (request.Body.CanSeek)
             {
                 request.Body.Seek(0, SeekOrigin.Begin);
             }
-            using var reader = new StreamReader(request.Body, header.ToEncoding(), true);
+            using var reader = new StreamReader(request.Body, _header.ToEncoding(), true);
 
-            _ = ParseRequestBody(header.MediaType, await reader.ReadToEndAsync())
+            _ = ParseRequestBody(_header.MediaType, await reader.ReadToEndAsync())
                 .Aggregate(content, (acc, kv) =>
                 {
                     acc.Add(kv.Key, kv.Value);
@@ -399,6 +429,81 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         }
 
         /// <summary>
+        /// Inject biz content into web api
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        private void InjectBizContent(HttpRequest request, Dictionary<string, JToken> body)
+        {
+            if (!body.ContainsKey("bizContent"))
+            {
+                throw new ArgumentException("缺少bizContent数据!");
+            }
+
+            var value = body["bizContent"];
+            switch (request.Method)
+            {
+                case "GET":
+                case "DELETE":
+                    request.Query = ConvertBizContentToQueries(value);
+                    break;
+                case "POST":
+                case "PUT":
+                    request.Body = ConvertBizContentToJson(_header.MediaType, value);
+                    break;
+                default:
+                    throw new NotSupportedException($"不支持的http方法'{request.Method}'!");
+            }
+        }
+
+        private QueryCollection ConvertBizContentToQueries(JToken bizContent)
+        {
+            var queries = bizContent.Type == JTokenType.Object || bizContent.Type == JTokenType.Array
+                ? JsonConvert.DeserializeObject<Dictionary<string, StringValues>>(bizContent.ToString(), new StringValuesConverter()) // object/array
+                : new Dictionary<string, StringValues>() { { "bizContent", bizContent.ToString() } };                                 // primitive type
+            return new QueryCollection(queries);
+        }
+
+        private Stream ConvertBizContentToJson(string mediaType, JToken bizContent)
+        {
+            string buffer;
+            if (bizContent.Type == JTokenType.Object || bizContent.Type == JTokenType.Array)
+            {
+                buffer = mediaType switch
+                {
+                    "application/json" => bizContent.ToString(),
+                    "application/x-www-form-urlencoded" => ConvertBizContentToForm(bizContent),
+                    _ => string.Empty
+                };
+            }
+            else
+            {
+                buffer = mediaType switch
+                {
+                    "application/json" => "{\"bizContent\":\"" + bizContent.ToString() + "\"}",
+                    "application/x-www-form-urlencoded" => "bizContent=" + Url.Encode(bizContent.ToString(), true),
+                    _ => string.Empty
+                };
+            }
+            return new MemoryStream(buffer.FromUTF8String());
+        }
+
+        private string ConvertBizContentToForm(JToken bizContent)
+        {
+            var value = bizContent.ToString();
+            var form = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(value);
+            var buffer = form.Aggregate(new StringBuilder(value.Length), (acc, kv) =>
+            {
+                acc.Append(kv.Key + "=" + Url.Encode(kv.Value.ToString(), true) + "&");
+                return acc;
+            });
+            return buffer.ToString(0, buffer.Length - 1);
+        }
+
+        /// <summary>
         /// A request header struct
         /// </summary>
         private struct Header
@@ -416,11 +521,11 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             public Encoding ToEncoding()
             {
                 Encoding encoding;
-                if (Charset == "utf-8")
+                if (Charset.Equals("utf-8", StringComparison.CurrentCultureIgnoreCase))
                 {
                     encoding = Encoding.UTF8;
                 }
-                else if (Charset == "ascii")
+                else if (Charset.Equals("ascii", StringComparison.CurrentCultureIgnoreCase))
                 {
                     encoding = Encoding.ASCII;
                 }
