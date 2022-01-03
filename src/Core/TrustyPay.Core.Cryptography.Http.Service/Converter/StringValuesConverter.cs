@@ -1,7 +1,9 @@
 
 using System;
+using System.Linq;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TrustyPay.Core.Cryptography.Http.Service
 {
@@ -16,6 +18,14 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         {
             if (reader.Value == null)
             {
+                if (reader.TokenType == JsonToken.StartArray)
+                {
+                    var values = JArray.Load(reader);
+                    if (values != null)
+                    {
+                        return new StringValues(values.Values<string>().ToArray());
+                    }
+                }
                 return StringValues.Empty;
             }
             else

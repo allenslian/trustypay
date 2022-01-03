@@ -262,25 +262,24 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
             await handler(response.HttpContext);
 
-            response.Headers.Remove("Content-Length");
-            if (response.Body.CanSeek)
-            {
-                response.Body.Seek(0, SeekOrigin.Begin); // move to begin
-            }
-
             response.StatusCode = StatusCodes.Status200OK;
             response.ContentType = "application/json;charset=utf-8";
 
+            response.Body.Seek(0, SeekOrigin.Begin); // move to begin
             using var reader = new StreamReader(response.Body);
             var responseBody = ServiceSigner.SignResponseBody(
                 _provider.GetPlatformPrivateKey(),
                 url,
                 JToken.Parse(await reader.ReadToEndAsync()));
 
-            var responseBodyWrapped = JsonConvert.SerializeObject(responseBody, Formatting.None).FromUTF8String();
-            response.Headers.ContentLength = responseBodyWrapped == null ? 0 : responseBodyWrapped.Length;
-            await original.WriteAsync(responseBodyWrapped);
+            if (original.CanWrite)
+            {
+                var responseBodyWrapped = JsonConvert.SerializeObject(responseBody, Formatting.None).FromUTF8String();
 
+                response.Headers.Remove("Content-Length");
+                response.Headers.ContentLength = responseBodyWrapped == null ? 0 : responseBodyWrapped.Length;
+                await original.WriteAsync(responseBodyWrapped);
+            }
             response.Body = original;
             await response.CompleteAsync();
         }
@@ -330,10 +329,10 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         }
 
         /// <summary>
-        /// 解析Content-Type
+        /// Parse Content-Type
         /// </summary>
         /// <param name="headers">http request headers</param>
-        /// <returns>Item1:media type; Item2:charset</returns>
+        /// <returns>Header object</returns>
         private static Header ParseContentType(IHeaderDictionary headers)
         {
             string mediaType = "application/json", charset = "utf-8";
@@ -461,46 +460,53 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
         private QueryCollection ConvertBizContentToQueries(JToken bizContent)
         {
-            var queries = bizContent.Type == JTokenType.Object || bizContent.Type == JTokenType.Array
-                ? JsonConvert.DeserializeObject<Dictionary<string, StringValues>>(bizContent.ToString(), new StringValuesConverter()) // object/array
-                : new Dictionary<string, StringValues>() { { "bizContent", bizContent.ToString() } };                                 // primitive type
-            return new QueryCollection(queries);
+            if (bizContent == null)
+            {
+                return new QueryCollection();
+            }
+
+            var value = bizContent.ToString().Trim();
+            if (value.EndsWith('}') || value.EndsWith(']'))
+            {
+                var queries = JsonConvert.DeserializeObject<Dictionary<string, StringValues>>(bizContent.ToString(), new StringValuesConverter());
+                return new QueryCollection(queries);
+            }
+            else
+            {
+                return new QueryCollection(new Dictionary<string, StringValues>() { { bizContent.ToString(), StringValues.Empty } });
+            }
         }
 
         private Stream ConvertBizContentToJson(string mediaType, JToken bizContent)
         {
-            string buffer;
-            if (bizContent.Type == JTokenType.Object || bizContent.Type == JTokenType.Array)
+            string buffer = mediaType switch
             {
-                buffer = mediaType switch
-                {
-                    "application/json" => bizContent.ToString(),
-                    "application/x-www-form-urlencoded" => ConvertBizContentToForm(bizContent),
-                    _ => string.Empty
-                };
-            }
-            else
-            {
-                buffer = mediaType switch
-                {
-                    "application/json" => bizContent.ToString(),
-                    "application/x-www-form-urlencoded" => Url.Encode(bizContent.ToString(), true),
-                    _ => string.Empty
-                };
-            }
+                "application/json" => bizContent.ToString(),
+                "application/x-www-form-urlencoded" => ConvertBizContentToForm(bizContent),
+                _ => string.Empty
+            };
             return new MemoryStream(buffer.FromUTF8String());
         }
 
         private string ConvertBizContentToForm(JToken bizContent)
         {
-            var value = bizContent.ToString();
-            var form = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(value);
-            var buffer = form.Aggregate(new StringBuilder(value.Length), (acc, kv) =>
+            if (bizContent == null)
             {
-                acc.Append(kv.Key + "=" + Url.Encode(kv.Value.ToString(), true) + "&");
-                return acc;
-            });
-            return buffer.ToString(0, buffer.Length - 1);
+                return string.Empty;
+            }
+
+            var value = bizContent.ToString().Trim();
+            if (value.EndsWith('}') || value.EndsWith(']'))
+            {
+                var form = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(value);
+                var buffer = form.Aggregate(new StringBuilder(value.Length), (acc, kv) =>
+                {
+                    acc.Append(kv.Key + "=" + Url.Encode(kv.Value.ToString(), true) + "&");
+                    return acc;
+                });
+                return buffer.ToString(0, buffer.Length - 1);
+            }
+            return value;
         }
 
         /// <summary>

@@ -3,22 +3,22 @@ using System.Security.Cryptography;
 
 namespace TrustyPay.Core.Cryptography.Http
 {
-    public class HttpClientBuilder<T> where T : HttpClientBase
+    public class HttpClientBuilder
     {
         protected HttpClientBase _client;
 
-        public HttpClientBuilder(T client)
+        public HttpClientBuilder(HttpClientBase client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public HttpClientBuilder<T> WithSigner(ISignatureProvider provider)
+        public HttpClientBuilder WithSigner(ISignatureProvider provider)
         {
             _client.Signer = provider;
             return this;
         }
 
-        public HttpClientBuilder<T> WithRSASigner(
+        public HttpClientBuilder WithRSASigner(
             RSACryptoProvider.PrivateKey privateKey,
             RSACryptoProvider.PublicKey publicKey,
             RSASignaturePadding padding = null,
@@ -32,7 +32,7 @@ namespace TrustyPay.Core.Cryptography.Http
             return this;
         }
 
-        public HttpClientBuilder<T> WithRSASigner(
+        public HttpClientBuilder WithRSASigner(
             Tuple<string, RSACryptoProvider.PrivateKeyFormat> privateKey,
             Tuple<string, RSACryptoProvider.PublicKeyFormat> publicKey,
             RSASignaturePadding padding = null,

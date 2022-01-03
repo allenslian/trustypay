@@ -34,7 +34,7 @@ namespace TrustyPay.Examples.WebApi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrustyPay.Examples.WebApi", Version = "v1" });
             });
 
-            services.AddScoped<IResourceProvider, ResourceProvider>();
+            services.AddSingleton<IResourceProvider, ResourceProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

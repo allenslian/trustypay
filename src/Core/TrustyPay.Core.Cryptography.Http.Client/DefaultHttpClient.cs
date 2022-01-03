@@ -153,7 +153,7 @@ namespace TrustyPay.Core.Cryptography.Http.Client
 
             if (Signer != null)
             {
-                body.Add(Constants.SignType, _signType);
+                body.Add(Constants.SignType, _signType.ToString());
             }
 
             if (extra != null)
@@ -168,6 +168,10 @@ namespace TrustyPay.Core.Cryptography.Http.Client
 
         protected override Dictionary<string, object> LoadResponseBody(string content)
         {
+            if (content == null)
+            {
+                return new Dictionary<string, object>();
+            }
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
         }
 
@@ -183,6 +187,8 @@ namespace TrustyPay.Core.Cryptography.Http.Client
                 var v = body[k];
                 if (string.IsNullOrEmpty(k)
                     || v == null
+                    || v.ToString() == string.Empty
+                    || v.ToString().Equals("null", StringComparison.CurrentCultureIgnoreCase)
                     || k == Constants.Sign)
                 {
                     continue;
@@ -212,6 +218,8 @@ namespace TrustyPay.Core.Cryptography.Http.Client
                 var v = body[k];
                 if (string.IsNullOrEmpty(k)
                     || v == null
+                    || v.ToString() == string.Empty
+                    || v.ToString().Equals("null", StringComparison.CurrentCultureIgnoreCase)
                     || k == Constants.Sign)
                 {
                     continue;
