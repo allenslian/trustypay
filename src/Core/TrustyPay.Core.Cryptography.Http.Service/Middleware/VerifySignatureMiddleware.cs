@@ -465,15 +465,16 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 return new QueryCollection();
             }
 
-            var value = bizContent.ToString().Trim();
-            if (value.EndsWith('}') || value.EndsWith(']'))
+            var value = bizContent.ToString(Formatting.None);
+            if (value.EndsWith('}'))
             {
                 var queries = JsonConvert.DeserializeObject<Dictionary<string, StringValues>>(bizContent.ToString(), new StringValuesConverter());
                 return new QueryCollection(queries);
             }
             else
             {
-                return new QueryCollection(new Dictionary<string, StringValues>() { { bizContent.ToString(), StringValues.Empty } });
+                var queries = JsonConvert.DeserializeObject<StringValues>(bizContent.ToString(), new StringValuesConverter());
+                return new QueryCollection(new Dictionary<string, StringValues>() { { "bizContent", queries } });
             }
         }
 
@@ -495,18 +496,22 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                 return string.Empty;
             }
 
-            var value = bizContent.ToString().Trim();
-            if (value.EndsWith('}') || value.EndsWith(']'))
+            var value = bizContent.ToString(Formatting.None);
+            if (value.EndsWith('}'))
             {
                 var form = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(value);
                 var buffer = form.Aggregate(new StringBuilder(value.Length), (acc, kv) =>
                 {
-                    acc.Append(kv.Key + "=" + Url.Encode(kv.Value.ToString(), true) + "&");
+                    acc.Append(kv.Key + "=" + Url.Encode(kv.Value.ToString(Formatting.None), true) + "&");
                     return acc;
                 });
                 return buffer.ToString(0, buffer.Length - 1);
             }
-            return value;
+            else
+            {
+                var form = JsonConvert.DeserializeObject<JToken>(value);
+                return "bizContent=" + Url.Encode(form.ToString(Formatting.None), true);
+            }
         }
 
         /// <summary>
