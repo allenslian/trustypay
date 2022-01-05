@@ -35,7 +35,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
 
             Assert.Throws<ArgumentNullException>(() =>
             {
-                client = new HttpClientBuilder<FakeHttpClient>(null).Build();
+                client = new HttpClientBuilder(null).Build();
             });
         }
 
@@ -280,7 +280,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                 { "sign", "OZDddIl1y7obVILaDDDpLBQYvioJmAtNPbzpUbqpsJcmkc9A0bilmgM3RdmDcDrPsXXAkrNj3G/QGYrglLhQKaZZIliyOli2jK1o0vabX2NXsmNhKEWtyI216WeahiHywJuB1OKysDbuGZU6FNayy1LocOjf6R7nWKC4K6ICiBU="}
             }, 400);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -331,7 +331,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                     RSASignaturePadding.Pkcs1,
                     RSACryptoProvider.KeySizes.RSA1024);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithSigner(provider)
                 .Build();
@@ -367,7 +367,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                     RSASignaturePadding.Pkcs1,
                     RSACryptoProvider.KeySizes.RSA1024);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithSigner(provider)
                 .Build();
@@ -402,7 +402,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                 { "sign", "Wt4cGwArwmzt2LCODPnoiEGQQtXBOrZVASG7H0Dyqa7qjoC9KE+1ejSMLKvQdx1abxyXJHcHm0/oOEL2g4+wmVeUKVg8xQveGCVDkDbsHKvlEbYH928oXgS2ILCeYafMq53wGT3c2JlTABEKU164fL98skWjdmIi7lweOLw9gQY="}
             });
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -437,7 +437,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                 { "sign", "Wt4cGwArwmzt2LCODPnoiEGQQtXBOrZVASG7H0Dyqa7qjoC9KE+1ejSMLKvQdx1abxyXJHcHm0/oOEL2g4+wmVeUKVg8xQveGCVDkDbsHKvlEbYH928oXgS2ILCeYafMq53wGT3c2JlTABEKU164fL98skWjdmIi7lweOLw9gQY="}
             });
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -471,7 +471,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
                 { "sign", "OZDddIl1y7obVILaDDDpLBQYvioJmAtNPbzpUbqpsJcmkc9A0bilmgM3RdmDcDrPsXXAkrNj3G/QGYrglLhQKaZZIliyOli2jK1o0vabX2NXsmNhKEWtyI216WeahiHywJuB1OKysDbuGZU6FNayy1LocOjf6R7nWKC4K6ICiBU="}
             }, 400);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "abcd1234"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -522,7 +522,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
             using var httpTest = new HttpTest();
             httpTest.RespondWith(string.Empty);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "helloworld"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -549,7 +549,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Http
             using var httpTest = new HttpTest();
             httpTest.RespondWith(string.Empty, 500);
 
-            var client = new HttpClientBuilder<FakeHttpClient>(
+            var client = new HttpClientBuilder(
                 new FakeHttpClient("http://localhost:5000", "helloworld"))
                 .WithRSASigner(
                     RSAKeyFactory.ImportPrivateKeyFromBase64String(

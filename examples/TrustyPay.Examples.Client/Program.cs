@@ -26,38 +26,44 @@ namespace TrustyPay.Examples.Client
                 )
                 .Build();
 
-            // var result = client.GetAsync<object, Employee[]>("/api/v1/signatures", new { filter = "hello2" }).Result;
+            // var result = client.GetAsync<object, Employee[]>("/api/v1/signatures", new { name = new { name = "hello2" } }).Result;
             // Console.WriteLine("Results => {0}.", result.Length);
-            // Console.WriteLine("Name[0] => {0}.", result[0].Name);
 
-            // var result01 = client.GetAsync<object, Employee[]>("/api/v1/signatures/v1", new { filter = true }).Result;
+            // var result01 = client.GetAsync<object, Employee[]>("/api/v1/signatures/v1", new { age = 41 }).Result;
             // Console.WriteLine("Results => {0}.", result01.Length);
-            // Console.WriteLine("Name[0] => {0}.", result01[0].Name);
 
-            // var result02 = client.GetAsync<object, Employee[]>("/api/v1/signatures/v2", new { Name = "allen" }).Result;
+            // var result02 = client.GetAsync<object, Employee[]>("/api/v1/signatures/v2", new { names = new[] { new { name = "allen" }, new { name = "bill" } } }).Result;
             // Console.WriteLine("Results => {0}.", result02.Length);
-            // Console.WriteLine("Name[0] => {0}.", result02[0].Name);
 
-            var result03 = client.GetAsync<object, Employee[]>(
-                "/api/v1/signatures/v3",
-                new { names = new string[] { "allen", "bill" } }).Result;
-            Console.WriteLine("Results => {0}.", result03.Length);
-            Console.WriteLine("Name[0] => {0}.", result03[0].Name);
-
-            // var result02 = client.PostJsonAsync<Employee, Result>("/api/v1/signatures", new Employee
-            // {
-            //     Name = "bill gate",
-            //     No = "003",
-            //     Age = 50
-            // }).Result;
-            // Console.WriteLine("IsOk => {0}.", result02.IsOk);
-            // Console.WriteLine("Message => {0}.", result02.Message);
-
-            // var result03 = client.PostJsonAsync<object, Result>(
+            // var result03 = client.GetAsync<object, Employee[]>(
             //     "/api/v1/signatures/v3",
+            //     new { Name = "allen", Age = 41 }).Result;
+            // Console.WriteLine("Results => {0}.", result03.Length);
+
+            // var result04 = client.GetAsync<object, Employee[]>(
+            //     "/api/v1/signatures/v4",
+            //     new[] { "allen", "bill" }).Result;
+            // Console.WriteLine("Result04 => {0}.", result04.Length);
+
+            // var result05 = client.GetAsync<object, Employee[]>(
+            //     "/api/v1/signatures/v5",
             //     true).Result;
-            // Console.WriteLine("IsOk => {0}.", result03.IsOk);
-            // Console.WriteLine("Message => {0}.", result03.Message);
+            // Console.WriteLine("Result04 => {0}.", result05.Length);
+
+            var result10 = client.PostJsonAsync<Employee, Result>("/api/v1/signatures", new Employee
+            {
+                Name = "bill gate",
+                No = "003",
+                Age = 50
+            }).Result;
+            Console.WriteLine("IsOk => {0}.", result10.IsOk);
+            Console.WriteLine("Message => {0}.", result10.Message);
+
+            // var result11 = client.PostJsonAsync<object, Result>(
+            //     "/api/v1/signatures/v2",
+            //     true).Result;
+            // Console.WriteLine("IsOk => {0}.", result11.IsOk);
+            // Console.WriteLine("Message => {0}.", result11.Message);
         }
     }
 }

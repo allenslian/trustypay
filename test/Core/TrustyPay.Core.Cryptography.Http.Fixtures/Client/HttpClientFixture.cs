@@ -139,7 +139,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "LbkA5jKa9b2+eIhQjPCvJXoaQazh5sYE/QEAUT2QQouuo8xeXnanwwiq7lLcm79I3zn4X8RIeW7c/gsHHGWNKCoyJj0/1Xjqo26VhCVAM2Ua/AZ3XleMkhBGwl78lkUl84Oa6otaYjKt4JPgibwIdN9oG/I/tkDs+HFXXsezDaI="}
             });
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -175,7 +175,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "ZafKApTSNQoO5q7XzwG5Fo9BuHkTiD7KtK2i8K8o0855vOXey74gOgIaDEt8kmvK841iDIQqrfwubuY8hhzQ9J79fZvCrey2zlPmtf/f4bTRx5PZAdJWAwFEUW5YJuj+i8QG1Y2dhFsEbEuwVJNmaWLQGCiWH4FvHoFakPOHXyg="}
             });
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -229,7 +229,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "SR1dV8dqzEwea9nRHZuP62zoEyHxSwUN+4HMOsQnp7ydaZxQw3z6rJO2EuaC/86zBGqCZzqkwXjr/8N0zWiHjzVXe2Yw+svbKnzsvT1cAlVDIiaKH0eh9tavfI8laytfK94oaGZRukR1tUslL9vaFZJmJuPMdYsnZSM+lbHPf1k="}
             });
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -263,7 +263,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "bYUykvDXODrXkZ3yFH4FV9nJXuJEBY4BAimPzPvhdHViBDLeil/Y2UzBxmqRW9uAyBjokAfsu+reutfHRVVvlzCVOIaWSCdJXCt/H4H3/AZL6vrw6IRSCcKtotaoDx1SsRZPa5LzfcN+h9t0B4OeKsnLStd++RKTjuS8BA7uIMU="}
             }, 404);
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -302,7 +302,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "dlGHk3lCsthYdIaE3OgH7KNjgDFi7U71xsF4eQe/rMBKM7uCwHiBK1+pEKKexC6tGBystBJna3P++Noqd8qRsDTZrftEx6K6PS83g4b3qNpXD+DHbDcftEiwTDpbE032DFK4xli2i3abK5/KRLKRUCC0YmmJFhsnP9iY9FgGz64="}
             }, 400);
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -344,7 +344,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "dlGHk3lCsthYdIaE3OgH7KNjgDFi7U71xsF4eQe/rMBKM7uCwHiBK1+pEKKexC6tGBystBJna3P++Noqd8qRsDTZrftEx6K6PS83g4b3qNpXD+DHbDcftEiwTDpbE032DFK4xli2i3abK5/KRLKRUCC0YmmJFhsnP9iY9FgGz64="}
             }, 400);
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -386,7 +386,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "sign", "RLLyHq0+FMQkyI23gaHl21NPbcA4ZnjE7mPGmJK3LZaaBsQsFyhPuHWvb17GxcY0KaDYhOLyjqewcuBxlhlcOX+RQMTkfk2sMyj//lksjfvWhxfS96lod/b2dHxg8f8oItBxUjZzb0VFLjZ6/RAY6iPqrh7gxDOa095VQX5Z6Hk="}
             }, 400);
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
@@ -429,7 +429,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Client
                 { "signType", 1 },
             });
 
-            IHttpClient client = new HttpClientBuilder<DefaultHttpClient>(
+            IHttpClient client = new HttpClientBuilder(
                 new DefaultHttpClient("http://localhost:5000", "trustypay app001", "An_api_key"))
                 .WithRSASigner(
                     new Tuple<string, RSACryptoProvider.PrivateKeyFormat>(
