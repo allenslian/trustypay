@@ -14,23 +14,27 @@ using Flurl;
 
 namespace TrustyPay.Core.Cryptography.Http.Service
 {
-    public class VerifySignatureMiddleware
+    public class SignatureMiddleware
     {
         private readonly IResourceProvider _provider;
 
-        private readonly ILogger<VerifySignatureMiddleware> _logger;
+        private readonly ILogger<SignatureMiddleware> _logger;
 
         private readonly RequestDelegate _next;
 
-        private Header _header;
+        private readonly SignatureOption _option;
 
-        public VerifySignatureMiddleware(
+        private ContentType _header;
+
+        public SignatureMiddleware(
             RequestDelegate next,
+            SignatureOption option,
             IResourceProvider provider,
-            ILogger<VerifySignatureMiddleware> logger
+            ILogger<SignatureMiddleware> logger
         )
         {
             _next = next;
+            _option = option;
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -68,6 +72,8 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             try
             {
                 EnsureAppIdAndApiKey(requestBody);
+                EnsureSignature(requestBody);
+                EnsureTimestamp(requestBody);
             }
             catch (MissingAppIdOrApiKeyException)
             {
@@ -77,17 +83,20 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                     "缺少app id和api key信息!");
                 return;
             }
-
-            try
-            {
-                EnsureSignature(requestBody);
-            }
             catch (MissingSignatureException)
             {
                 _logger.LogWarning("缺少请求签名信息!");
                 await WriteResponseErrorAsync(context.Response,
                     context.Request.Path, StatusCodes.Status400BadRequest,
                     "缺少请求签名信息!");
+                return;
+            }
+            catch (InvalidTimestampException)
+            {
+                _logger.LogWarning("无效的时间戳!");
+                await WriteResponseErrorAsync(context.Response,
+                    context.Request.Path, StatusCodes.Status400BadRequest,
+                    "无效的时间戳!");
                 return;
             }
 
@@ -162,7 +171,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
 
             try
             {
-                InjectBizContent(context.Request, requestBody);
+                InjectBizContent(context, requestBody);
             }
             catch (NotSupportedException se)
             {
@@ -245,13 +254,12 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
             using var reader = new StreamReader(request.Body, _header.ToEncoding(), true);
 
-            _ = ParseRequestBody(_header.MediaType, await reader.ReadToEndAsync())
+            return ParseRequestBody(_header.MediaType, await reader.ReadToEndAsync())
                 .Aggregate(content, (acc, kv) =>
                 {
-                    acc.Add(kv.Key, kv.Value);
+                    acc[kv.Key] = kv.Value;
                     return acc;
                 });
-            return content;
         }
 
         private async Task WriteResponseBodyAsync(HttpResponse response, string url,
@@ -328,12 +336,41 @@ namespace TrustyPay.Core.Cryptography.Http.Service
             }
         }
 
+        private void EnsureTimestamp(Dictionary<string, JToken> body)
+        {
+            if (_option.ValidateTimestamp)
+            {
+                if (!body.ContainsKey("timestamp"))
+                {
+                    throw new InvalidTimestampException();
+                }
+
+                DateTime timestamp;
+                try
+                {
+                    var value = body["timestamp"].Value<long>();
+                    timestamp = DateTime.UnixEpoch.Add(TimeSpan.FromMilliseconds(value));
+                }
+                catch (Exception te)
+                {
+                    _logger.LogError(te, $"timestamp[{body["timestamp"]}] is invalid!!!");
+                    throw new InvalidTimestampException();
+                }
+
+                if (timestamp < DateTime.UtcNow.AddMinutes(-10) || timestamp > DateTime.UtcNow.AddMinutes(10))
+                {
+                    _logger.LogWarning($"timestamp[{timestamp}] is invalid!!!");
+                    throw new InvalidTimestampException();
+                }
+            }
+        }
+
         /// <summary>
         /// Parse Content-Type
         /// </summary>
         /// <param name="headers">http request headers</param>
         /// <returns>Header object</returns>
-        private static Header ParseContentType(IHeaderDictionary headers)
+        private static ContentType ParseContentType(IHeaderDictionary headers)
         {
             string mediaType = "application/json", charset = "utf-8";
             if (headers.TryGetValue("Content-Type", out StringValues value))
@@ -362,7 +399,7 @@ namespace TrustyPay.Core.Cryptography.Http.Service
                     }
                 }
             }
-            return new Header(mediaType, charset);
+            return new ContentType(mediaType, charset);
         }
 
         /// <summary>
@@ -430,31 +467,33 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         /// <summary>
         /// Inject biz content into web api
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="context"></param>
         /// <param name="body"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="NotSupportedException"></exception>
-        private void InjectBizContent(HttpRequest request, Dictionary<string, JToken> body)
+        private void InjectBizContent(HttpContext context, Dictionary<string, JToken> body)
         {
             if (!body.ContainsKey("bizContent"))
             {
                 throw new ArgumentException("缺少bizContent数据!");
             }
 
+            // inject app id into context
+            context.Items[_option.AppIdName] = body["appId"].Value<string>();
             var value = body["bizContent"];
-            switch (request.Method)
+            switch (context.Request.Method)
             {
                 case "GET":
                 case "DELETE":
-                    request.Query = ConvertBizContentToQueries(value);
+                    context.Request.Query = ConvertBizContentToQueries(value);
                     break;
                 case "POST":
                 case "PUT":
-                    request.Body = ConvertBizContentToJson(_header.MediaType, value);
+                    context.Request.Body = ConvertBizContentToJson(_header.MediaType, value);
                     break;
                 default:
-                    throw new NotSupportedException($"不支持的http方法'{request.Method}'!");
+                    throw new NotSupportedException($"不支持的http方法'{context.Request.Method}'!");
             }
         }
 
@@ -517,9 +556,9 @@ namespace TrustyPay.Core.Cryptography.Http.Service
         /// <summary>
         /// A request header struct
         /// </summary>
-        private struct Header
+        private struct ContentType
         {
-            public Header(string mediaType, string charset)
+            public ContentType(string mediaType, string charset)
             {
                 MediaType = mediaType;
                 Charset = charset;

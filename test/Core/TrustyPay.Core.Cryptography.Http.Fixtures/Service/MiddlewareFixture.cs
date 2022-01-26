@@ -23,8 +23,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             };
             IResourceProvider mockProvider = new FakeResourceProvider();
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -50,8 +51,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
                 new QueryCollection(new Dictionary<string, StringValues>(){
                     {"filter", new StringValues("hello world")}
                 });
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -90,8 +92,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "{\r\n  \"appId\":\"trustypay.client\",\r\n  \"apiKey\": \"icx3wd0js06q5mwbdf1o991s964jve886zjs\",\r\n  \"bizContent\": \"{\\\"name\\\":\\\"allen\\\"}\",\r\n  \"timestamp\": \"1641008396\",\r\n \"sign\": \"OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e+lK25jd8Erlmcp0iZCmhy/3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK+b+kzaqms6+88dEQoplBMlNmcmhnRP2hF+2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu+lg+D8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT/jY+giwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA==\"\r\n}".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -133,8 +136,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
                     {"signType", new StringValues("RS256")},
                     {"sign", new StringValues("u6fvVnlkMT5eiS/qiW9eGwFf4nTIYOqxjxffm/9znQDXVlRcOG272L5qeF/kachZhsHiCe3iHPThuY/k6rryZEvdLTZ4CyBpijYeGuDEm8odVw4JdEt3Gi1jzem9t546h3mpesudC2k3I2R4UvySuUiisSPuGRQH4/8Y1pk1iwEozh/iMg4CGlz+SOmytkxMPuKNqF5l925OFxGFypUCPIFwh0uiEvWjqkiAWw6e6v0vqNPvbsd8ZnrT4k4NUyZ1Ui0NJ3PgwwAWy+TnGryO4RcBon59rZISv76m2NK2wAOfBKmU4Vk/HEZYzqjf4yBbp5MFBW8tmGYMI4AWuLMCQQ==")}
                 });
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -176,8 +180,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
                     {"signType", new StringValues("RS256")},
                     {"sign", new StringValues("G5uSbdBBAMP0QI7XPLP3dICYKCwdzW7fqoEhxFX1bylvaLWQ6yLKVt/y2gVE3JCZQCN2WqqqlrLhkKFKJ2uhABkQvQfb4vSokfhxBpFkk0PfMzY5+hyk4wL/UFb4evJ2pj9A/7pajCjwDovvtOvIIGjoUOcG6ji1aBC6K/UGmsTP4SvW6AvZ7/+D4oAlmFKn2KDAoQr4SxhOrMT+RXmzvVumWRT6WZcdSYJOLkE4j3HglZRPGdUA8Una80rt54j6PGVjahMVYy+5RjDATVPHgF39mk6+7x/UhPgodvTtqbTvK6qljkoHTlfAy/6VUmmX3EJPFwcTFpK+5bkEHNs8RA==")}
                 });
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -219,8 +224,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
                     {"signType", new StringValues("RS256")},
                     {"sign", new StringValues("5uSbdBBAMP0QI7XPLP3dICYKCwdzW7fqoEhxFX1bylvaLWQ6yLKVt/y2gVE3JCZQCN2WqqqlrLhkKFKJ2uhABkQvQfb4vSokfhxBpFkk0PfMzY5+hyk4wL/UFb4evJ2pj9A/7pajCjwDovvtOvIIGjoUOcG6ji1aBC6K/UGmsTP4SvW6AvZ7/+D4oAlmFKn2KDAoQr4SxhOrMT+RXmzvVumWRT6WZcdSYJOLkE4j3HglZRPGdUA8Una80rt54j6PGVjahMVYy+5RjDATVPHgF39mk6+7x/UhPgodvTtqbTvK6qljkoHTlfAy/6VUmmX3EJPFwcTFpK+5bkEHNs8RA==")}
                 });
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -259,8 +265,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "{\r\n  \"appId\":\"trustypay.client\",\r\n  \"apiKey\": \"icx3wd0js06q5mwbdf1o991s964jve886zjs\",\r\n  \"bizContent\": \"{\\\"name\\\":\\\"allen\\\"}\",\r\n  \"timestamp\": \"1641008396\",\r\n \"sign\": \"OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e+lK25jd8Erlmcp0iZCmhy/3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK+b+kzaqms6+88dEQoplBMlNmcmhnRP2hF+2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu+lg+D8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT/jY+giwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA==\"\r\n}".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -299,8 +306,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "appId=trustypay.client&apiKey=icx3wd0js06q5mwbdf1o991s964jve886zjs&bizContent={\"name\":\"allen\"}&timestamp=1641008396&sign=OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e%2BlK25jd8Erlmcp0iZCmhy%2F3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK%2Bb%2Bkzaqms6%2B88dEQoplBMlNmcmhnRP2hF%2B2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu%2Blg%2BD8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT%2FjY%2BgiwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA%3D%3D&h&hello=null".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -340,8 +348,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
                     {"timestamp", new StringValues("1641008396")},
                     {"signType", new StringValues("RS256")},
                 });
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -382,8 +391,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "appId=trustypay.client&apiKey=icx3wd0js06q5mwbdf1o991s964jve886zjs&bizContent={\"name\":\"allen\"}&timestamp=1641008396&sign=OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e%2BlK25jd8Erlmcp0iZCmhy%2F3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK%2Bb%2Bkzaqms6%2B88dEQoplBMlNmcmhnRP2hF%2B2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu%2Blg%2BD8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT%2FjY%2BgiwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA%3D%3D&h&hello=null".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -424,8 +434,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "appId=trustypay.client&apiKey=icx3wd0js06q5mwbdf1o991s964jve886zjs&bizContent={\"name\":\"allen\"}&timestamp=1641008396&sign=OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e%2BlK25jd8Erlmcp0iZCmhy%2F3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK%2Bb%2Bkzaqms6%2B88dEQoplBMlNmcmhnRP2hF%2B2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu%2Blg%2BD8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT%2FjY%2BgiwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA%3D%3D&h&hello=null".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -460,8 +471,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "appId=trustypay.client&apiKey=icx3wd0js06q5mwbdf1o991s964jve886zjs&bizContent={\"name\":\"allen\"}&timestamp=1641008396&sign=OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e%2BlK25jd8Erlmcp0iZCmhy%2F3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK%2Bb%2Bkzaqms6%2B88dEQoplBMlNmcmhnRP2hF%2B2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu%2Blg%2BD8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT%2FjY%2BgiwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA%3D%3D&h&hello=null".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -502,8 +514,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             await httpContext.Request.Body.WriteAsync(
                 "appId=trustypay.client&apiKey=icx3wd0js06q5mwbdf1o991s964jve886zjs&bizContent={\"name\":\"allen\"}&timestamp=1641008396&sign=OmtcOVQn06Zz6dHh6vmplSbdeIC3i1Ekh6NmkJPta1DEDwqnOCAHR1Ebndd2e%2BlK25jd8Erlmcp0iZCmhy%2F3tFuZ0jmVdQyaPOiJtqYklWZxGsqdJk3D2ZixuK%2Bb%2Bkzaqms6%2B88dEQoplBMlNmcmhnRP2hF%2B2LLeTILNg78zN5ezWJjSbephzdWJsnh3abGeZnPOTGCPp29qkG92Mys0lzz8Zu%2Blg%2BD8alJkK3yFEjaaEw1FZNO7WZSrIHwJ659RdMtq0O2tYzyFOdYF6PHT%2FjY%2BgiwVc40hfKKg6r0PmFa0YZVhpeA09ikgvkqAe0eSueUeHoptc6ayPXnvnoMeyA%3D%3D&h&hello=null".FromUTF8String());
 
-            var mw = new VerifySignatureMiddleware(
+            var mw = new SignatureMiddleware(
                 mockNext,
+                new SignatureOption(),
                 mockProvider,
                 GetLogger()
             );
@@ -540,13 +553,13 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Service
             return httpContext;
         }
 
-        private ILogger<VerifySignatureMiddleware> GetLogger()
+        private ILogger<SignatureMiddleware> GetLogger()
         {
             return LoggerFactory.Create(b =>
             {
                 b.AddConsole();
             })
-            .CreateLogger<VerifySignatureMiddleware>();
+            .CreateLogger<SignatureMiddleware>();
         }
     }
 }
