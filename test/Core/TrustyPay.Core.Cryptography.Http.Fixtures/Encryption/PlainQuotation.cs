@@ -1,7 +1,7 @@
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 {
-    internal class PlainQuotation : EncryptableObjectBase
+    internal class PlainQuotation
     {
         public PlainQuotation() { }
 
@@ -20,7 +20,5 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 
         [Encryptable]
         public string[] Items { get; set; }
-
-        protected override IEncryptionProvider Encryptor { get; set; }
     }
 }

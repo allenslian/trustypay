@@ -18,14 +18,14 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
                 PayerBankAccount = "12345678"
             };
             order.Items = new CreateOrder.OrderLineItem[]{
-                new CreateOrder.OrderLineItem(order.SecretKey){
+                new CreateOrder.OrderLineItem{
                     LineNo = 1,
                     Amount = "12.00",
                     Payee = "bill",
                     PayeeAccountName = "bill",
                     PayeeAccountNO = "87654321"
                 },
-                new CreateOrder.OrderLineItem(order.SecretKey){
+                new CreateOrder.OrderLineItem{
                     LineNo = 2,
                     Amount = "8.00",
                     Payee = "world",
@@ -34,7 +34,13 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
                 }
             };
 
-            order.Encrypt();
+            var encryptor = new ObjectEncryptor(
+                new TripleDESEncryptionProvider(
+                    "hellowor".FromASCIIString(),
+                    "0000000000000000".FromHexString()
+                )
+            );
+            encryptor.Encrypt(order);
             Assert.Equal("01", order.Code);
             Assert.Equal("xAkKhcFz/io=", order.TotalAmount);
             Assert.Equal(1, order.Items[0].LineNo);
@@ -42,7 +48,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
             Assert.Equal(2, order.Items[1].LineNo);
             Assert.Equal("CphoRPfrKv0=", order.Items[1].Payee);
 
-            order.Decrypt();
+            encryptor.Decrypt(order);
             Assert.Equal("01", order.Code);
             Assert.Equal("20.00", order.TotalAmount);
             Assert.Equal(1, order.Items[0].LineNo);
@@ -67,7 +73,13 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
             };
             quotation.ItemWithoutEncryption = new Quotation.QuotationItem();
 
-            quotation.Encrypt();
+            var encryptor = new ObjectEncryptor(
+                new AESEncryptionProvider(
+                    "helloworld!!!!!!".FromASCIIString(),
+                    "00000000000000000000000000000000".FromHexString()
+                )
+            );
+            encryptor.Encrypt(quotation);
 
             Assert.Equal("01", quotation.Code);
             Assert.Equal("DddQjA+a5pSPhYM9NROUog==", quotation.TotalAmount);
@@ -76,7 +88,7 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
             Assert.Equal("n7I5b9TB1t+3ztIz0qudGI0RN/y9X2YT0e/Bh89ZEqM=", quotation.Items[0]);
             Assert.Equal("NLzLajeXT7FKq9YntxsCxFRB3ZdqiYagOVxvdVy7NpA=", quotation.Items[1]);
 
-            quotation.Decrypt();
+            encryptor.Decrypt(quotation);
             Assert.Equal("20.00", quotation.TotalAmount);
             Assert.Null(quotation.Payer);
             Assert.Equal("", quotation.PayerBankAccount);
@@ -99,14 +111,20 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
                 "2|world|87654322|8.00"
             };
 
-            quotation.Encrypt();
+            var encryptor = new ObjectEncryptor(
+                new AESEncryptionProvider(
+                    "helloworld".FromASCIIString(),
+                    "0000000000000000".FromHexString()
+                )
+            );
+            encryptor.Encrypt(quotation);
 
             Assert.Equal("01", quotation.Code);
-            Assert.Equal("20.00", quotation.TotalAmount);
-            Assert.Equal("1|bill|87654321|12.00", quotation.Items[0]);
-            Assert.Equal("2|world|87654322|8.00", quotation.Items[1]);
+            Assert.Equal("YrlwmrwfhwQDwcRUiYmWzg==", quotation.TotalAmount);
+            Assert.Equal("q7d58MknSFBb1VO3+t3nTv8Z7fLaJIG1jtfFi4dMcb8=", quotation.Items[0]);
+            Assert.Equal("QuYpRLr18r2bFmE2XzXKFd+qDC2iaB5u0Z2k/13pWVA=", quotation.Items[1]);
 
-            quotation.Decrypt();
+            encryptor.Decrypt(quotation);
             Assert.Equal("20.00", quotation.TotalAmount);
             Assert.Equal("1|bill|87654321|12.00", quotation.Items[0]);
             Assert.Equal("2|world|87654322|8.00", quotation.Items[1]);

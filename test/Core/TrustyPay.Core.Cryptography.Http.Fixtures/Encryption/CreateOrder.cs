@@ -1,18 +1,10 @@
 
+using System;
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 {
-    internal class CreateOrder : EncryptableObjectBase
+    internal class CreateOrder
     {
-        public CreateOrder()
-        {
-            SecretKey = "hellowor";
-            Encryptor = new TripleDESEncryptionProvider(
-                SecretKey.FromASCIIString(),
-                "0000000000000000".FromHexString()
-            );
-        }
-
         public string Code { get; set; }
 
         [Encryptable]
@@ -29,20 +21,9 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
         [Encryptable]
         public OrderLineItem[] Items { get; set; }
 
-        protected override IEncryptionProvider Encryptor { get; set; }
-
-        internal class OrderLineItem : EncryptableObjectBase
+        internal class OrderLineItem
         {
             private string _key;
-
-            public OrderLineItem(string secretKey)
-            {
-                _key = secretKey;
-                Encryptor = new TripleDESEncryptionProvider(
-                    _key.FromASCIIString(),
-                    "0000000000000000".FromHexString()
-                );
-            }
 
             public int LineNo { get; set; }
 
@@ -57,8 +38,6 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 
             [Encryptable]
             public string PayeeAccountNO { get; set; }
-
-            protected override IEncryptionProvider Encryptor { get; set; }
         }
     }
 }

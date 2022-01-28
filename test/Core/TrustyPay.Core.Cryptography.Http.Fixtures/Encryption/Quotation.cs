@@ -1,17 +1,8 @@
 
 namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 {
-    internal class Quotation : EncryptableObjectBase
+    internal class Quotation
     {
-        public Quotation()
-        {
-            SecretKey = "helloworld!!!!!!";
-            Encryptor = new AESEncryptionProvider(
-                SecretKey.FromASCIIString(),
-                "00000000000000000000000000000000".FromHexString()
-            );
-        }
-
         public string Code { get; set; }
 
         [Encryptable]
@@ -27,8 +18,6 @@ namespace TrustyPay.Core.Cryptography.Http.Fixtures.Encryption
 
         [Encryptable]
         public string[] Items { get; set; }
-
-        protected override IEncryptionProvider Encryptor { get; set; }
 
         [Encryptable]
         public QuotationItem ItemWithoutEncryption { get; set; }
